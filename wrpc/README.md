@@ -28,3 +28,49 @@
 + EndPointManager: 下游状态管理器，管理下游服务每个实例当前状态，包括连接，错误计数，可用状态（alive/death）
 + LoadBalancer: 负载均衡策略抽象，为每一次rpc交互选择一个下游实例，并接收每次网络请求的反馈，监听下游服务列表的变更，及时更新内部状态，首次请求和重试请求使用相同接口配置不同策略
 + NamingService: 名字服务抽象，定期解析naming，刷新下游列表，检查下游实例健康状态
+---
+代码示例：
+(```)
+// 创建一个channel
+ChannelPtr channel = Channel::make_channel();
+ChannelOptions options;
+options.protocol = "http";                // 通信协议
+options.total_timeout_ms = 3000;          // 总超时时间
+options.connect_timeout_ms = 100;         // 连接超时
+options.backup_request_timeout_ms = 100;  // 发起backup request的超时
+options.max_retry_num = 2;                // 最大重试次数，backup request算做一次重试
+int ret = channel->init(address, options);
+if (NET_SUCC != ret) {
+    fprintf(stderr, "init channel failed with ret: %d.\n", ret);
+    return;
+}
+
+// 创建一个Controller
+ControllerPtr controller = channel->create_controller();
+if (!controller) {
+    fprintf(stderr, "create controller failed.\n");
+    return;
+}
+
+// make request
+HttpRequest* request = (HttpRequest *) (controller->get_request());
+...
+controller->set_logid("logid");
+ret = controller->submit_async(&callback); // 发起异步请求
+fprintf(stderr, "submit controller ret: %d.\n", ret);
+
+// 同一controller重复提交会失败
+ret = controller->submit_async(&callback);
+assert(ret == NET_INVALID_ARGUMENT);
+
+if (need_detach) {
+    // 让rpc在后台自行完成，放弃控制权，controller指针可以释放了
+    ret = controller->detach();
+    fprintf(stderr, "detach controller ret: %d.\n", ret);
+    controller.reset();
+} else {
+    // 或者同步等待rpc结束，结束后即可释放controller指针
+    ret = controller->join();
+    controller.reset();
+}
+(```)
