@@ -31,6 +31,12 @@
 + LoadBalancer: 负载均衡策略抽象，为每一次rpc交互选择一个下游实例，并接收每次网络请求的反馈，监听下游服务列表的变更，及时更新内部状态，首次请求和重试请求使用相同接口配置不同策略
 + NamingService: 名字服务抽象，定期解析naming，刷新下游列表，检查下游实例健康状态
 ---
+定制策略：
++ 应用层协议: 分别继承IRequest和IResponse实现请求和响应格式，利用宏REGISTER_REQUEST和REGISTER_RESPONSE注册协议到框架中
++ 负载均衡策略: 继承LoadBalancer实现select逻辑，利用宏REGISTER_LOAD_BALANCER注册策略到框架
++ 名字服务: 继承INamingService实现refresh逻辑，利用宏REGISTER_NAMING_SERVICE注册名字服务到框架
++ 创建Channel的Option中指定注册时对应的协议，负载均衡和重试策略；服务地址采用{protocol}://{address}格式，protocol即注册的名字服务
+---
 代码示例：
 ```
 // 创建一个channel
