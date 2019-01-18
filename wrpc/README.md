@@ -30,7 +30,7 @@
 + NamingService: 名字服务抽象，定期解析naming，刷新下游列表，检查下游实例健康状态
 ---
 代码示例：
-(```)
+```
 // 创建一个channel
 ChannelPtr channel = Channel::make_channel();
 ChannelOptions options;
@@ -73,4 +73,4 @@ if (need_detach) {
     ret = controller->join();
     controller.reset();
 }
-(```)
+```
