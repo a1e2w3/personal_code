@@ -257,10 +257,8 @@ const std::string& Controller::get_protocol() const {
     return _channel->_options.protocol;
 }
 
-static void do_nothing_callback(ControllerPtr, IRequest*, IResponse*) {}
-
 int Controller::submit() {
-    return submit(&do_nothing_callback);
+    return submit(nullptr);
 }
 
 int Controller::submit(const RPCCallback& callback) {
@@ -318,7 +316,7 @@ void Controller::submit_wrapper(ControllerWeakPtr controller, const RPCCallback&
 }
 
 int Controller::submit_async() {
-    return submit_async(&do_nothing_callback);
+    return submit_async(nullptr);
 }
 
 int Controller::submit_async(const RPCCallback& callback) {
@@ -514,7 +512,9 @@ void Controller::on_rpc_success() {
     _error_code = NET_SUCC;
     cleanup();
     DEBUG("logid:%s controller success, retry_count:%u", _logid.c_str(), _retry_count);
-    _user_callback(shared_from_this(), _request, _response);
+    if (_user_callback) {
+        _user_callback(shared_from_this(), _request, _response);
+    }
     _self.reset();
     _cond.notify_all();
 }
@@ -539,7 +539,9 @@ void Controller::on_rpc_timeout() {
         _normal_request.reset();
     }
     DEBUG("logid:%s controller timeout, retry_count:%u", _logid.c_str(), _retry_count);
-    _user_callback(shared_from_this(), _request, nullptr);
+    if (_user_callback) {
+        _user_callback(shared_from_this(), _request, nullptr);
+    }
     _self.reset();
     _cond.notify_all();
 }
@@ -559,7 +561,9 @@ void Controller::on_rpc_failed(int error_code) {
     _normal_request.reset();
     DEBUG("logid:%s controller failed, error_code:%d, retry_count:%u",
             _logid.c_str(), error_code, _retry_count);
-    _user_callback(shared_from_this(), _request, nullptr);
+    if (_user_callback) {
+        _user_callback(shared_from_this(), _request, nullptr);
+    }
     _self.reset();
     _cond.notify_all();
 }
@@ -578,7 +582,7 @@ void Controller::on_rpc_canceled(bool run_callback) {
     _backup_request.reset();
 
     // run user callback
-    if (run_callback) {
+    if (run_callback && _user_callback) {
         _user_callback(shared_from_this(), _request, nullptr);
     }
     _self.reset();
