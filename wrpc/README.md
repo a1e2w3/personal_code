@@ -18,7 +18,7 @@
     + submit: 发起一次同步rpc请求，阻塞直到rpc结束
     + submit_async: 发起一次异步rpc请求，请求在后台发送，函数立即返回
     + join: 同步等待一个rpc请求结束，阻塞直到rpc结束
-    + detach: 让rpc自行在后台进行，应用程序可释放持有的ControllerPtr，rpc不会被取消
+    + detach: 让rpc自行在后台进行，应用程序可释放持有的ControllerPtr，而rpc不会被取消；没有detach的情况下，若持有的ControllerPtr都被释放且rpc还未结束，则rpc会自行取消
     + cancel: 取消正在进行中的rpc
     + status: rpc当前状态
     + get_request/get_response: 获取rpc请求/响应
