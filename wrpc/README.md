@@ -1,16 +1,18 @@
 # wrpc：一个灵活的rpc框架，支持灵活定制应用层协议，名字服务，负载均衡等组件
-目录结构：
-common: 共用数据结构定义
-interface: 策略接口抽象
-message: 应用层协议，定制消息格式
-network: 核心的网络通信代码
-strategy: 定制的策略，包括负载均衡策略，重试策略，名字服务等
-utils: 共用的工具代码
 
+---
+目录结构：
++ common: 共用数据结构定义
++ interface: 策略接口抽象
++ message: 应用层协议，定制消息格式
++ network: 核心的网络通信代码
++ strategy: 定制的策略，包括负载均衡策略，重试策略，名字服务等
++ utils: 共用的工具代码
+---
 对外接口:
-Channel: 对应一个下游服务，程序运行过程中可一直保有，配合reloadable工具可支持配置reload
-    init: 初始化，指定服务地址和服务参数
-    create_controller: 创建一个rpc控制器，用于发起一次rpc
++ Channel: 对应一个下游服务，程序运行过程中可一直保有，配合reloadable工具可支持配置reload
+    + init: 初始化，指定服务地址和服务参数
+    + create_controller: 创建一个rpc控制器，用于发起一次rpc
 
 Controller: 一次rpc过程的控制器，rpc完成后即可删除
     submit: 发起一次同步rpc请求，阻塞直到rpc结束
