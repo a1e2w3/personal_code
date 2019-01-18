@@ -52,11 +52,13 @@ if (!controller) {
     return;
 }
 
-// make request
+// make request, 设置logid
 HttpRequest* request = (HttpRequest *) (controller->get_request());
 ...
-controller->set_logid("logid");
-ret = controller->submit_async(&callback); // 发起异步请求
+controller->set_logid("xxxxxxxx");
+
+// 发起异步请求
+ret = controller->submit_async(&callback); 
 fprintf(stderr, "submit controller ret: %d.\n", ret);
 
 // 同一controller重复提交会失败
