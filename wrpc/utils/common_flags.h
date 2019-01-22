@@ -15,6 +15,10 @@
 // use -DWRPC_XXX=xxx to modify these constants
 // TODO use gflags
 
+#ifndef WRPC_USE_CONTROLLER_INST_POOL_CAPACITY
+#define WRPC_USE_CONTROLLER_INST_POOL_CAPACITY 0
+#endif
+
 #ifndef WRPC_EVENT_DISPATCHER_NUMS
 #define WRPC_EVENT_DISPATCHER_NUMS 1
 #endif

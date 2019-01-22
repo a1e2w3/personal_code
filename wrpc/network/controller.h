@@ -52,8 +52,11 @@ private:
 
     explicit RequestController(Controller*);
     ~RequestController();
+    // disallow copy and move
     RequestController(const RequestController&) = delete;
+    RequestController(RequestController&&) = delete;
     RequestController& operator = (const RequestController&) = delete;
+    RequestController& operator = (RequestController&&) = delete;
 
 public:
     int get_fd() const;
@@ -102,9 +105,11 @@ private:
     // should only create and destroy by Channel
     Controller(ChannelPtr&& channel, const RPCOptions& options);
     ~Controller();
-    // disallow copy
+    // disallow copy and move
     Controller(const Controller&) = delete;
+    Controller(Controller&&) = delete;
     Controller& operator = (const Controller&) = delete;
+    Controller& operator = (Controller&&) = delete;
 
     friend class Channel;
     friend class EventDispatcher;

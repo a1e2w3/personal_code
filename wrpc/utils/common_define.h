@@ -57,6 +57,16 @@ inline bool need_retry(int error_code) {
     return error_code >= NET_NEED_RETRY_MIN && error_code <= NET_NEED_RETRY_MAX;
 }
 
+// 析构然后原地重新构造，复用内存，节省一次内存分配和回收的开销
+template<typename T, typename... Args>
+inline T* reconstruct(T* pointer, Args&&... args) {
+    if (pointer != nullptr) {
+        pointer->~T();
+        new (pointer) T(std::forward(args)...);
+    }
+    return pointer;
+}
+
 }
  
 #endif // WRPC_UTILS_COMMON_DEFINE_H_

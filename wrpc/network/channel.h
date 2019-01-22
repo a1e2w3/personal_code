@@ -24,9 +24,13 @@ class Channel : public std::enable_shared_from_this<Channel> {
 private:
     Channel();
     ~Channel();
-    // disallow copy
+    // 不允许copy和move, 原因:
+    // 1. 应用仅需持有ChannelPtr, 不应获取Channel原始对象, 没有copy和move的必要
+    // 2. Controller会持有ChannelPtr, Channel对象被move会使得Controller指向的对象失效
     Channel(const Channel&) = delete;
+    Channel(Channel&&) = delete;
     Channel& operator = (const Channel&) = delete;
+    Channel& operator = (Channel&&) = delete;
 
 public:
     static ChannelPtr make_channel();
@@ -47,6 +51,11 @@ private:
     friend ChannelPtr make_channel();
     static void delete_channel(Channel*);
     static void delete_controller(Controller*);
+
+    // Controller 构造函数和析构函数的代理, 供InstancePool调用
+    static Controller* construct_controller(
+            Controller* pointor, ChannelPtr&& channel, const RPCOptions& options);
+    static void deconstruct_controller(Controller* pointor);
 
     int fetch_connection(LoadBalancerContext& context, int32_t timeout_ms, ConnectionPtr& connection);
     void giveback_connection(ConnectionPtr&&, bool close);

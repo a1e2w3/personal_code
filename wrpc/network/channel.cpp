@@ -8,6 +8,9 @@
  
 #include "network/channel.h"
 
+#include <mutex>
+#include "instance_pool.h"
+
 #include "network/connection.h"
 #include "network/controller.h"
 
@@ -208,16 +211,57 @@ void Channel::delete_channel(Channel* channel) {
     }
 }
 
+Controller* Channel::construct_controller(Controller* pointor, ChannelPtr&& channel, const RPCOptions& options) {
+    if (pointor != nullptr) {
+        return new (pointor) Controller(std::move(channel), options);
+    } else {
+        return pointor;
+    }
+}
+
+void Channel::deconstruct_controller(Controller* pointor) {
+    if (pointor != nullptr) {
+        pointor->~Controller();
+    }
+}
+
+#if WRPC_USE_CONTROLLER_INST_POOL_CAPACITY > 0
+// 使用对象池
+typedef common::InstancePool<Controller, ChannelPtr&&, const RPCOptions&> ControllerInstPool;
+static ControllerInstPool* s_controller_pool = nullptr;
+
+ControllerPtr Channel::create_controller() {
+    static std::once_flag s_init_controller_pool_once;
+    std::call_once(s_init_controller_pool_once, [&s_controller_pool] () -> void {
+        s_controller_pool = new ControllerInstPool(
+                WRPC_USE_CONTROLLER_INST_POOL_CAPACITY,
+                nullptr,
+                nullptr,
+                &Channel::construct_controller,
+                &Channel::deconstruct_controller);
+    });
+    return ControllerPtr(s_controller_pool->fetch(
+            shared_from_this(), _options.default_rpc_options()), Channel::delete_controller);
+}
+
+void Channel::delete_controller(Controller* controller) {
+    if (controller != nullptr) {
+        s_controller_pool->give_back(controller);
+    }
+}
+#else
+// 不使用对象池
+ControllerPtr Channel::create_controller() {
+    return ControllerPtr(new (std::nothrow) Controller(
+            shared_from_this(), _options.default_rpc_options()), Channel::delete_controller);
+}
+
 void Channel::delete_controller(Controller* controller) {
     if (controller != nullptr) {
         delete controller;
     }
 }
-
-ControllerPtr Channel::create_controller() {
-    return ControllerPtr(new (std::nothrow) Controller(
-            shared_from_this(), _options.default_rpc_options()), Channel::delete_controller);
-}
+#endif
 
 void Channel::destroy_controller(ControllerPtr& controller) {
     controller.reset();

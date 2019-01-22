@@ -117,9 +117,6 @@ default_deconstructor(typename type_trait<T>::pointer p) {
     }
 }
 
-// FIXME 当前模板实例化必须实例化default_constructor<T, Args...>和default_deconstructor<T>
-// 导致构造函数或析构函数非public的类不能用InstancePool
-// 应改为未指定constructor和deconstructor时才需实例化默认构造和析构器
 template<class T, class... Args>
 class InstancePool {
 public:
@@ -164,24 +161,27 @@ private:
     }
 
 public:
+    // T需要有可见的构造函数和析构函数
     explicit InstancePool(size_t capacity)
-        : InstancePool(capacity, nullptr, nullptr) {}
+        : InstancePool(capacity, nullptr, nullptr, &default_constructor<T, Args...>, &default_deconstructor<T>) {}
+
+    // T需要有可见的构造函数和析构函数
+    template<typename Initializer, typename Uninitializer>
     InstancePool(size_t capacity,
-            const initializer_type& initializer, const uninitializer_type& uninitializer)
-        : _capacity(std::min(static_cast<size_t>(MAX_CAPACITY), capacity)),
-          _slot_count(slots_capacity(_capacity)),
-          _start(nullptr),
-          _end(nullptr),
-          _availablity(_capacity),
-          _slot_rr(0),
-          _slots(nullptr),
-          _initializer(initializer),
-          _uninitializer(uninitializer),
-          _constructor(&default_constructor<T, Args...>),
-          _deconstructor(&default_deconstructor<T>) {
-        init();
-    }
-    InstancePool(size_t capacity, initializer_type&& initializer, uninitializer_type&& uninitializer)
+            Initializer&& initializer, Uninitializer&& uninitializer)
+        : InstancePool(capacity,
+                std::forward<Initializer>(initializer),
+                std::forward<Uninitializer>(uninitializer),
+                &default_constructor<T, Args...>,
+                &default_deconstructor<T>) {}
+
+    // 自行传入构造器和析构器, 适用于T的构造函数或析构函数非public的场景
+    template<typename Initializer, typename Uninitializer, typename Constructor, typename Deconstructor>
+    InstancePool(size_t capacity,
+            Initializer&& initializer,
+            Uninitializer&& uninitializer,
+            Constructor&& constructor,
+            Deconstructor&& deconstructor)
             : _capacity(std::min(static_cast<size_t>(MAX_CAPACITY), capacity)),
               _slot_count(slots_capacity(_capacity)),
               _start(nullptr),
@@ -189,12 +189,12 @@ public:
               _availablity(_capacity),
               _slot_rr(0),
               _slots(nullptr),
-              _initializer(std::move(initializer)),
-              _uninitializer(std::move(uninitializer)),
-              _constructor(&default_constructor<T, Args...>),
-              _deconstructor(&default_deconstructor<T>) {
-            init();
-        }
+              _initializer(std::forward<Initializer>(initializer)),
+              _uninitializer(std::forward<Uninitializer>(uninitializer)),
+              _constructor(std::forward<Constructor>(constructor)),
+              _deconstructor(std::forward<Deconstructor>(deconstructor)) {
+        init();
+    }
 
     ~InstancePool() {
         release();
