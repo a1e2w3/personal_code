@@ -83,15 +83,51 @@ template<>
 inline uint8_t lowest_bit_pos<uint8_t>(uint8_t data) {
     return lowest_bit_8_table(data);
 }
- 
-template<class T, class... Args>
-class InstancePool {
-public:
+
+template<class T>
+struct type_trait {
     using element_type = typename std::remove_reference<T>::type;
     using pointer = element_type*;
     using reference = element_type&;
     using const_pointer = const element_type*;
     using const_reference = const element_type&;
+};
+
+// default as placement new
+// constructor must be defined and accessable
+template<class T, class... Args>
+typename std::enable_if<std::is_constructible<typename type_trait<T>::element_type, Args...>::value, typename type_trait<T>::pointer>::type
+default_constructor(typename type_trait<T>::pointer p, Args&&... args) {
+    if (p) {
+        using element_type = typename type_trait<T>::element_type;
+        return new (p) element_type(std::forward<Args>(args)...);
+    } else {
+        return p;
+    }
+}
+
+// default as deconstructor
+// deconstructor must be defined and accessable
+template<class T>
+typename std::enable_if<std::is_destructible<typename type_trait<T>::element_type>::value, void>::type
+default_deconstructor(typename type_trait<T>::pointer p) {
+    if (p) {
+        using element_type = typename type_trait<T>::element_type;
+        p->~element_type();
+    }
+}
+
+// FIXME 当前模板实例化必须实例化default_constructor<T, Args...>和default_deconstructor<T>
+// 导致构造函数或析构函数非public的类不能用InstancePool
+// 应改为未指定constructor和deconstructor时才需实例化默认构造和析构器
+template<class T, class... Args>
+class InstancePool {
+public:
+    using element_type = typename type_trait<T>::element_type;
+    using pointer = typename type_trait<T>::pointer;
+    using reference = typename type_trait<T>::reference;
+    using const_pointer = typename type_trait<T>::const_pointer;
+    using const_reference = typename type_trait<T>::const_reference;
 
     // call while instance fetch and give_back
     using construct_type = std::function<pointer (pointer, Args&&...)>;
@@ -127,28 +163,9 @@ private:
         return lowest_bit_pos<slot_type>(data);
     }
 
-    // default as placement new
-    static pointer default_constructor(pointer p, Args&&... args) {
-        if (p) {
-            return new (p) element_type(std::forward<Args>(args)...);
-        } else {
-            return p;
-        }
-    }
-
-    // default as deconstructor
-    static void default_deconstructor(pointer p) {
-        if (p) {
-            p->~element_type();
-        }
-    }
-    static void do_nothing(pointer /*p*/) { /* do nothing */ }
-
 public:
     explicit InstancePool(size_t capacity)
-        : InstancePool(capacity,
-                 InstancePool<T, Args...>::do_nothing,
-                 InstancePool<T, Args...>::do_nothing) {}
+        : InstancePool(capacity, nullptr, nullptr) {}
     InstancePool(size_t capacity,
             const initializer_type& initializer, const uninitializer_type& uninitializer)
         : _capacity(std::min(static_cast<size_t>(MAX_CAPACITY), capacity)),
@@ -160,8 +177,8 @@ public:
           _slots(nullptr),
           _initializer(initializer),
           _uninitializer(uninitializer),
-          _constructor(InstancePool<T, Args...>::default_constructor),
-          _deconstructor(InstancePool<T, Args...>::default_deconstructor) {
+          _constructor(&default_constructor<T, Args...>),
+          _deconstructor(&default_deconstructor<T>) {
         init();
     }
     InstancePool(size_t capacity, initializer_type&& initializer, uninitializer_type&& uninitializer)
@@ -174,8 +191,8 @@ public:
               _slots(nullptr),
               _initializer(std::move(initializer)),
               _uninitializer(std::move(uninitializer)),
-              _constructor(InstancePool<T, Args...>::default_constructor),
-              _deconstructor(InstancePool<T, Args...>::default_deconstructor) {
+              _constructor(&default_constructor<T, Args...>),
+              _deconstructor(&default_deconstructor<T>) {
             init();
         }
 
@@ -269,13 +286,17 @@ public:
 private:
     pointer allocate_and_construct(Args&&... args) {
         pointer p = reinterpret_cast<pointer>(malloc(sizeof(element_type)));
-        _initializer(p);
+        if (_initializer) {
+            _initializer(p);
+        }
         return _constructor(p, std::forward<Args>(args)...);
     }
 
     void deconstruct_and_free(pointer p) {
         _deconstructor(p);
-        _uninitializer(p);
+        if (_uninitializer) {
+            _uninitializer(p);
+        }
         free(p);
     }
 
@@ -294,8 +315,10 @@ private:
             _end = _start + _capacity;
 
             // init instance
-            for (pointer p = _start; p != _end; ++p) {
-                _initializer(p);
+            if (_initializer) {
+                for (pointer p = _start; p != _end; ++p) {
+                    _initializer(p);
+                }
             }
 
             // init slots
@@ -315,8 +338,10 @@ private:
             _slots = nullptr;
         }
         if (_start) {
-            for (pointer p = _start; p != _end; ++p) {
-                _uninitializer(p);
+            if (_uninitializer) {
+                for (pointer p = _start; p != _end; ++p) {
+                    _uninitializer(p);
+                }
             }
             free(_start);
             _start = nullptr;
@@ -359,6 +384,9 @@ private:
     std::atomic<slot_index_type> _slot_rr;
     std::atomic<slot_type>* _slots;
 
+    // 对象第一次申请到内存时的初始化与最后释放内存前的反初始化
+    // 默认为nullptr, 什么也不做
+    // 因为构造时即需申请内存, 必须在构造时指定
     initializer_type _initializer;
     uninitializer_type _uninitializer;
 
