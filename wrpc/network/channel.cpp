@@ -211,10 +211,9 @@ void Channel::destroy_response(IResponse* response) {
 
 #if WRPC_USE_CONTROLLER_INST_POOL_CAPACITY > 0
 // 使用对象池
-typedef common::InstancePool<Controller, ChannelPtr&&, const RPCOptions&> ControllerInstPool;
-static ControllerInstPool* s_controller_pool = nullptr;
-
 ControllerPtr Channel::create_controller() {
+	typedef common::InstancePool<Controller, ChannelPtr&&, const RPCOptions&> ControllerInstPool;
+	static ControllerInstPool* s_controller_pool = nullptr;
     static std::once_flag s_init_controller_pool_once;
     std::call_once(s_init_controller_pool_once, [&s_controller_pool] () -> void {
         s_controller_pool = new ControllerInstPool(
