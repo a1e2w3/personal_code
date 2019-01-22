@@ -41,7 +41,6 @@ public:
 
     // should be called by ChannelPtr
     ControllerPtr create_controller();
-    void destroy_controller(ControllerPtr&);
     void feedback(const FeedbackInfo& info);
 
 private:
@@ -49,13 +48,6 @@ private:
     friend class RequestController;
 
     friend ChannelPtr make_channel();
-    static void delete_channel(Channel*);
-    static void delete_controller(Controller*);
-
-    // Controller 构造函数和析构函数的代理, 供InstancePool调用
-    static Controller* construct_controller(
-            Controller* pointor, ChannelPtr&& channel, const RPCOptions& options);
-    static void deconstruct_controller(Controller* pointor);
 
     int fetch_connection(LoadBalancerContext& context, int32_t timeout_ms, ConnectionPtr& connection);
     void giveback_connection(ConnectionPtr&&, bool close);

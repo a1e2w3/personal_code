@@ -90,7 +90,7 @@ static void http_test() {
     controller->join();
 
     //fprintf(stderr, "channel ref count: %ld.\n", channel.use_count());
-    channel->destroy_controller(controller);
+    //controller.reset();
     //fprintf(stderr, "channel ref count: %ld.\n", channel.use_count());
 }
  

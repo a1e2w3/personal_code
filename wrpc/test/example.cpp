@@ -75,7 +75,7 @@ static void redis_test(const std::string& logid, const std::string& address) {
     ret = controller->detach();
     fprintf(stderr, "detach controller ret: %d.\n", ret);
 
-    channel->destroy_controller(controller);
+    //controller.reset();
     fprintf(stderr, "release controller ptr.\n");
 }
  

@@ -31,7 +31,11 @@ Channel::~Channel() {
 }
 
 ChannelPtr Channel::make_channel() {
-    return ChannelPtr(new (std::nothrow) Channel(), Channel::delete_channel);
+    return ChannelPtr(new (std::nothrow) Channel(), [] (Channel* channel) {
+        if (channel != nullptr) {
+            delete channel;
+        }
+    });
 }
  
 int Channel::init(const std::string& address, const ChannelOptions& options) {
@@ -205,26 +209,6 @@ void Channel::destroy_response(IResponse* response) {
     ResponseFactory::get_instance().destroy_instance(_options.protocol, response);
 }
 
-void Channel::delete_channel(Channel* channel) {
-    if (channel != nullptr) {
-        delete channel;
-    }
-}
-
-Controller* Channel::construct_controller(Controller* pointor, ChannelPtr&& channel, const RPCOptions& options) {
-    if (pointor != nullptr) {
-        return new (pointor) Controller(std::move(channel), options);
-    } else {
-        return pointor;
-    }
-}
-
-void Channel::deconstruct_controller(Controller* pointor) {
-    if (pointor != nullptr) {
-        pointor->~Controller();
-    }
-}
-
 #if WRPC_USE_CONTROLLER_INST_POOL_CAPACITY > 0
 // 使用对象池
 typedef common::InstancePool<Controller, ChannelPtr&&, const RPCOptions&> ControllerInstPool;
@@ -237,35 +221,32 @@ ControllerPtr Channel::create_controller() {
                 WRPC_USE_CONTROLLER_INST_POOL_CAPACITY,
                 nullptr,
                 nullptr,
-                &Channel::construct_controller,
-                &Channel::deconstruct_controller);
+                [] (Controller* pointor, ChannelPtr&& channel, const RPCOptions& options) {
+                    if (pointor != nullptr) {
+                        return new (pointor) Controller(std::move(channel), options);
+                    } else {
+                        return pointor;
+                    }
+                },
+                [] (Controller* pointor) {
+                    if (pointor != nullptr) {
+                        pointor->~Controller();
+                    }
+                });
     });
-    return ControllerPtr(s_controller_pool->fetch(
-            shared_from_this(), _options.default_rpc_options()), Channel::delete_controller);
-}
-
-void Channel::delete_controller(Controller* controller) {
-    if (controller != nullptr) {
-        s_controller_pool->give_back(controller);
-    }
+    return s_controller_pool->fetch_shared(shared_from_this(), _options.default_rpc_options());
 }
 #else
 // 不使用对象池
 ControllerPtr Channel::create_controller() {
     return ControllerPtr(new (std::nothrow) Controller(
-            shared_from_this(), _options.default_rpc_options()), Channel::delete_controller);
-}
-
-void Channel::delete_controller(Controller* controller) {
-    if (controller != nullptr) {
-        delete controller;
-    }
+            shared_from_this(), _options.default_rpc_options()), [] (Controller* controller) {
+        if (controller != nullptr) {
+            delete controller;
+        }
+    });
 }
 #endif
-
-void Channel::destroy_controller(ControllerPtr& controller) {
-    controller.reset();
-}
 
 int Channel::fetch_connection(LoadBalancerContext& context,
         int32_t timeout_ms, ConnectionPtr& connection) {

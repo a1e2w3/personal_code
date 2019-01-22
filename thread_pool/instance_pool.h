@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <type_traits>
 #include <utility>
@@ -133,6 +134,10 @@ public:
     // call while instance pool create and destroy
     using initializer_type = std::function<void (pointer)>;
     using uninitializer_type = std::function<void (pointer)>;
+
+    // smart pointor
+    using unique_pointer = std::unique_ptr<element_type, deconstruct_type>;
+    using shared_pointer = std::shared_ptr<element_type>;
 
 private:
     using slot_type = uint8_t;
@@ -273,6 +278,33 @@ public:
             // incr availablity
             ++_availablity;
         }
+    }
+
+    // 构造智能指针
+    unique_pointer fetch_unique(Args&&... args) {
+        pointer p = fetch(std::forward<Args>(args)...);
+        return unique_pointer(p, std::bind(&InstancePool<T, Args...>::give_back, this, std::placeholders::_1));
+    }
+    unique_pointer fetch_unique_fast_fail(Args&&... args) {
+        pointer p = fetch_fast_fail(std::forward<Args>(args)...);
+        return unique_pointer(p, std::bind(&InstancePool<T, Args...>::give_back, this, std::placeholders::_1));
+    }
+    shared_pointer fetch_shared(Args&&... args) {
+        pointer p = fetch(std::forward<Args>(args)...);
+        return shared_pointer(p, std::bind(&InstancePool<T, Args...>::give_back, this, std::placeholders::_1));
+    }
+    shared_pointer fetch_shared_fast_fail(Args&&... args) {
+        pointer p = fetch_fast_fail(std::forward<Args>(args)...);
+        return shared_pointer(p, std::bind(&InstancePool<T, Args...>::give_back, this, std::placeholders::_1));
+    }
+
+    // 原地重建对象, 节省一次放回+取出的开销
+    pointer reconstruct(pointer p, Args&&... args) {
+        if (p) {
+            _deconstructor(p);
+            _constructor(p, std::forward<Args>(args)...);
+        }
+        return p;
     }
 
     size_t availablity() const {
