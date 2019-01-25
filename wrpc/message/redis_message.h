@@ -16,25 +16,9 @@
 #include <vector>
 
 #include "interface/message.h"
+#include "utils/string_utils.h"
 
 namespace wrpc {
-
-template<class T>
-inline std::string parse_to_string(const T& val) {
-    std::ostringstream oss;
-    oss << val;
-    return oss.str();
-}
-
-template<>
-inline std::string parse_to_string<std::string>(const std::string& val) {
-    return val;
-}
-
-template<>
-inline std::string parse_to_string<const char*>(const char* const& val) {
-    return val == nullptr ? std::string() : std::string(val);
-}
 
 class RedisRequest : public IRequest {
 public:
@@ -42,24 +26,30 @@ public:
     virtual ~RedisRequest() {}
 
     template<class... Args>
-    void set_command(const std::string& command, const Args&... args) {
+    void set_command(const std::string& command, Args&&... args) {
         _params.clear();
-        append_param(command, args...);
+        append_param(command, std::forward<Args>(args)...);
+    }
+
+    template<class... Args>
+    void set_command(std::string&& command, Args&&... args) {
+        _params.clear();
+        append_param(std::move(command), std::forward<Args>(args)...);
     }
 
     virtual int write_to(Writable* writable, int32_t timeout);
 
 private:
     template<class T, class... Args>
-    inline void append_param(const T& param, const Args&... args) {
-        _params.emplace_back(parse_to_string(param));
-        append_param(args...);
+    inline void append_param(T&& param, Args&&... args) {
+        _params.emplace_back(to_string(std::forward<T>(param)));
+        append_param(std::forward<Args>(args)...);
     }
 
     // partial specialization
     template<class T>
-    inline void append_param(const T& param) {
-        _params.emplace_back(parse_to_string(param));
+    inline void append_param(T&& param) {
+        _params.emplace_back(to_string(std::forward<T>(param)));
     }
 
 private:

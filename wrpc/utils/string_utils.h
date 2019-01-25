@@ -13,6 +13,66 @@
 #include <vector>
 
 namespace wrpc {
+
+template<class T, class Enable = void>
+struct to_string_impl {
+    inline std::string operator() (T&& val) {
+        std::ostringstream oss;
+        oss << std::forward<T>(val);
+        return oss.str();
+    }
+};
+
+// 对nullptr_t特化
+template<>
+struct to_string_impl<std::nullptr_t> {
+    inline std::string operator() (std::nullptr_t) {
+        return std::string();
+    }
+};
+
+// 对std::string类型偏特化, 直接构造
+template<class T>
+struct to_string_impl<T, typename std::enable_if<
+        std::is_convertible<T&&, std::string>::value
+        && !std::is_pointer<typename std::decay<T>::type>::value, void>::type> {
+    inline std::string operator() (T&& val) {
+        return std::string(std::forward<T>(val));
+    }
+};
+
+// 对char*类型偏特化, 判断null并直接构造
+template<class T>
+struct to_string_impl<T, typename std::enable_if<
+        std::is_convertible<T&&, std::string>::value
+        && std::is_pointer<typename std::decay<T>::type>::value, void>::type> {
+    inline std::string operator() (T&& val) {
+        return val == nullptr ? std::string() : std::string(std::forward<T>(val));
+    }
+};
+
+// 对数字类型偏特化, 调std::to_string
+template<class T>
+struct to_string_impl<T, typename std::enable_if<std::is_arithmetic<typename std::decay<T>::type>::value, void>::type> {
+    inline std::string operator() (T&& val) {
+        return std::to_string(val);
+    }
+};
+
+/**
+ * @brief 对象转string
+ *
+ * @param [in] val : T&&
+ *        待转换的对象
+ *
+ * @return std::string
+ * @retval 转换后的字符串
+ *
+ */
+template<class T>
+inline std::string to_string(T&& val) {
+    return to_string_impl<T>()(std::forward<T>(val));
+}
  
 /**
  * @brief trim字符串前后的特殊字符

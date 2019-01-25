@@ -50,45 +50,73 @@ public:
         _version.second = sub_version;
     }
     const std::string& get_uri() const { return _uri; }
-    void set_uri(const std::string& uri) { _uri = uri; }
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_uri(StringType&& uri) { _uri = std::forward<StringType>(uri); }
     const std::string& get_host() const { return _host; }
-    void set_host(const std::string& host) { _host = host; }
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_host(StringType&& host) { _host = std::forward<StringType>(host); }
 
     const HttpHeaders& headers() const { return _headers; }
-    void set_header(const std::string& key, const std::string& value);
+    template<typename Key, typename Value>
+    typename std::enable_if<std::is_convertible<Key&&, std::string>::value && std::is_convertible<Value&&, std::string>::value, void>::type
+    set_header(Key&& key, Value&& value) {
+        _headers[std::forward<Key>(key)] = std::forward<Value>(value);
+    }
     const std::string& get_header(const std::string& key) const;
     bool has_header(const std::string& key) const;
 
     // specific header
-    void set_content_type(const std::string& content_type) {
-        set_header("Content-Type", content_type);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_content_type(StringType&& content_type) {
+        set_header("Content-Type", std::forward<StringType>(content_type));
     }
-    void set_user_agent(const std::string& user_agent) {
-        set_header("User-Agent", user_agent);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_user_agent(StringType&& user_agent) {
+        set_header("User-Agent", std::forward<StringType>(user_agent));
     }
-    void set_cache_control(const std::string& cache_control) {
-        set_header("Cache-Control", cache_control);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_cache_control(StringType&& cache_control) {
+        set_header("Cache-Control", std::forward<StringType>(cache_control));
     }
-    void set_referer(const std::string& referer) {
-        set_header("Referer", referer);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_referer(StringType&& referer) {
+        set_header("Referer", std::forward<StringType>(referer));
     }
-    void set_accept(const std::string& accept) {
-        set_header("Accept", accept);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_accept(StringType&& accept) {
+        set_header("Accept", std::forward<StringType>(accept));
     }
-    void set_accept_charset(const std::string& accept_charset) {
-        set_header("Accept-Charset", accept_charset);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_accept_charset(StringType&& accept_charset) {
+        set_header("Accept-Charset", std::forward<StringType>(accept_charset));
     }
-    void set_accept_encoding(const std::string& accept_encoding) {
-        set_header("Accept-Encoding", accept_encoding);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_accept_encoding(StringType&& accept_encoding) {
+        set_header("Accept-Encoding", std::forward<StringType>(accept_encoding));
     }
-    void set_accept_language(const std::string& accept_language) {
-        set_header("Accept-Language", accept_language);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_accept_language(StringType&& accept_language) {
+        set_header("Accept-Language", std::forward<StringType>(accept_language));
     }
-    void set_authorization(const std::string& authorization) {
-        set_header("Authorization", authorization);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_authorization(StringType&& authorization) {
+        set_header("Authorization", std::forward<StringType>(authorization));
     }
-    void set_from(const std::string& from) {
-        set_header("From", from);
+    template<typename StringType>
+    typename std::enable_if<std::is_convertible<StringType&&, std::string>::value, void>::type
+    set_from(StringType&& from) {
+        set_header("From", std::forward<StringType>(from));
     }
 
     void append_body(const char* buf, size_t len);

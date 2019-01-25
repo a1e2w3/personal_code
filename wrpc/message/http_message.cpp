@@ -127,10 +127,6 @@ int HttpRequest::write_to(Writable* writable, int32_t timeout) {
     return NET_SUCC;
 }
 
-void HttpRequest::set_header(const std::string& key, const std::string& value) {
-    _headers[key] = value;
-}
-
 const std::string& HttpRequest::get_header(const std::string& key) const {
     static std::string NOT_FOUND_HEADER_VALUE("");
     auto iter = _headers.find(key);
