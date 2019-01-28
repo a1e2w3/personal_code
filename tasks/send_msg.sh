@@ -2,23 +2,23 @@
 
 send_mail_msg()
 {
-# ·¢ËÍÓÊ¼şµÄÍ¨ÓÃ³ÌĞò
-# ÓÃ·¨£ºsend_mail_msg -t "±¨¾¯¼¶±ğÊı" -s "¼òÒªÓÊ¼ş±êÌâ"  -p "¸½¼ş»òÄÚÈİ"
-# ²ÎÊı£º
-# 	-t: RDÖ»ĞèÒªÌá¹©warninglevelÅäÖÃÖĞµÄ±¨¾¯¼¶±ğ£¬È¡ÖµÎª0-3¡£½Å±¾»á×Ô¶¯ÌáÈ¡¸Ã¼¶±ğµÄÊÕ¼şĞÅÏ¢¡£
-# 	-s: RDÖ»ĞèÒªÌá¹©×î¹Ø¼üµÄ£¬¼ò½àµÄ [¼òÒª±¨¾¯ĞÅÏ¢] ¼´¿É¡£ÆäËü [Àà±ğ][Ä£¿éÃû][Ê±¼ä]  ĞÅÏ¢ÓÉ½Å±¾×Ô¶¯²¹È«
-# 	-p: ÒªÃ´ÊÇÒ»ĞĞ¼òµ¥µÄÎÄ×Ö×öÕıÎÄ£¬ÒªÃ´ÊÇÒ»¸ö¸½¼şÎÄ¼ş¡£¸ÃÎÄ¼ş¿ÉÒÔÎŞºó×º£¬½«Ê¹ÓÃmail·¢ËÍ£¬Èç¹ûÊÇ.txt»ò.htmlÎÄ¼ş£¬½«ÓÃsendmail·¢ËÍ
+# å‘é€é‚®ä»¶çš„é€šç”¨ç¨‹åº
+# ç”¨æ³•ï¼šsend_mail_msg -t "æŠ¥è­¦çº§åˆ«æ•°" -s "ç®€è¦é‚®ä»¶æ ‡é¢˜"  -p "é™„ä»¶æˆ–å†…å®¹"
+# å‚æ•°ï¼š
+# 	-t: RDåªéœ€è¦æä¾›warninglevelé…ç½®ä¸­çš„æŠ¥è­¦çº§åˆ«ï¼Œå–å€¼ä¸º0-3ã€‚è„šæœ¬ä¼šè‡ªåŠ¨æå–è¯¥çº§åˆ«çš„æ”¶ä»¶ä¿¡æ¯ã€‚
+# 	-s: RDåªéœ€è¦æä¾›æœ€å…³é”®çš„ï¼Œç®€æ´çš„ [ç®€è¦æŠ¥è­¦ä¿¡æ¯] å³å¯ã€‚å…¶å®ƒ [ç±»åˆ«][æ¨¡å—å][æ—¶é—´]  ä¿¡æ¯ç”±è„šæœ¬è‡ªåŠ¨è¡¥å…¨
+# 	-p: è¦ä¹ˆæ˜¯ä¸€è¡Œç®€å•çš„æ–‡å­—åšæ­£æ–‡ï¼Œè¦ä¹ˆæ˜¯ä¸€ä¸ªé™„ä»¶æ–‡ä»¶ã€‚è¯¥æ–‡ä»¶å¯ä»¥æ— åç¼€ï¼Œå°†ä½¿ç”¨mailå‘é€ï¼Œå¦‚æœæ˜¯.txtæˆ–.htmlæ–‡ä»¶ï¼Œå°†ç”¨sendmailå‘é€
 
-# ·µ»ØÖµ£º
-#  0: Õı³£·¢ËÍ 
-# -1: ²ÎÊı¸öÊı²»¶Ô
-# -2: ²ÎÊıÏî²»¶Ô£¨¼´Ã»ÓĞ-t,-s,-pµÈ²ÎÊı£©
-# -3: ÓÊ¼ş±êÌâ¸ñÊ½²»·ûºÏ¹æ·¶
-# -4: ÓĞºó×ºµÄ¸½¼ş²ÎÊıÎÄ¼şºó×º²»¶Ô£¨Èç¹ûÓĞºó×ºÓÉ±ØĞëÎªhtml»òtxt£©
-# -5: ·¢ËÍÓĞºó×º¸½¼şÓÊ¼şÊ±´íÎó
-# -6: ·¢ËÍÎŞºó×º¸½¼şÓÊ¼şÊ±´íÎó
-# -7: ·¢ËÍÄÚÈİÓÊ¼şÊ±´íÎó
-# -8: ÅäÖÃÎÄ¼şwarninglevelÎ»ÖÃ²»¶Ô»ò²»´æÔÚ
+# è¿”å›å€¼ï¼š
+#  0: æ­£å¸¸å‘é€ 
+# -1: å‚æ•°ä¸ªæ•°ä¸å¯¹
+# -2: å‚æ•°é¡¹ä¸å¯¹ï¼ˆå³æ²¡æœ‰-t,-s,-pç­‰å‚æ•°ï¼‰
+# -3: é‚®ä»¶æ ‡é¢˜æ ¼å¼ä¸ç¬¦åˆè§„èŒƒ
+# -4: æœ‰åç¼€çš„é™„ä»¶å‚æ•°æ–‡ä»¶åç¼€ä¸å¯¹ï¼ˆå¦‚æœæœ‰åç¼€ç”±å¿…é¡»ä¸ºhtmlæˆ–txtï¼‰
+# -5: å‘é€æœ‰åç¼€é™„ä»¶é‚®ä»¶æ—¶é”™è¯¯
+# -6: å‘é€æ— åç¼€é™„ä»¶é‚®ä»¶æ—¶é”™è¯¯
+# -7: å‘é€å†…å®¹é‚®ä»¶æ—¶é”™è¯¯
+# -8: é…ç½®æ–‡ä»¶warninglevelä½ç½®ä¸å¯¹æˆ–ä¸å­˜åœ¨
 
 
 local FUNC_NAME="send_mail_msg"
@@ -26,11 +26,11 @@ local FUNC_NAME="send_mail_msg"
 # check parameter 
 if [ $# -ne 6 ];then
 	echo "$FUNC_NAME parameter error!"
-	echo "Usage: $FUNC_NAME -t "±¨¾¯¼¶±ğÊı" -s "¼òÒªÓÊ¼ş±êÌâ" -p '¸½¼ş»òÄÚÈİ' "
+	echo "Usage: $FUNC_NAME -t "æŠ¥è­¦çº§åˆ«æ•°" -s "ç®€è¦é‚®ä»¶æ ‡é¢˜" -p 'é™„ä»¶æˆ–å†…å®¹' "
 	return -1
 fi
 
-# »ñÈ¡²ÎÊı
+# è·å–å‚æ•°
 OPTIND=1
 while getopts "t:s:p:" opt;
 do
@@ -46,13 +46,13 @@ do
 	esac
 done
 
-# ¼ì²éwarninglevelÖĞ£¬Ä£¿éÃûÊÇ·ñÎª²»¿Õ
+# æ£€æŸ¥warninglevelä¸­ï¼Œæ¨¡å—åæ˜¯å¦ä¸ºä¸ç©º
 if [ -z "${MODULE_NAME}" ];then
         echo "the conf item MODULE_NAME is black"
         return -8
 fi
 
-# ÅĞ¶Ï±¨¾¯¼¶±ğ
+# åˆ¤æ–­æŠ¥è­¦çº§åˆ«
 if [ "$opt_t" -ge ${LEVEL_NUM} -o "$opt_t"  -ge 4 ];then
 	echo "warnling level error!,must be 0-3"
 	return -1
@@ -78,141 +78,87 @@ fi
 
 _SUBJECT="[${_WARNAME}][${MODULE_NAME}][${opt_s}][${_DATE}]"
 
-# ¼òµ¥¼ì²éÊÕ¼şÈËÊÇ·ñ¹æ·¶£¬Èç¹ûÊÇ¸öÈË£¬Ôòµ÷ÓÃº¯Êı´¦Àí
-for tmpi_Qz4_tUw9Pg in  ${_MAILIST};do
-        echo ${tmpi_Qz4_tUw9Pg} | grep -E 'spi|mon|-' &>/dev/null
-        if [ $? -ne 0 ];then
-                check_host_valid "${_MAILIST}"
-    			break
-	    fi
-done
-
-# # ½«ÌØ¶¨¼¶±ğµÄ±¨¾¯ÓÊ¼şµ¼Èëµ½EIPÏµÍ³£¨Ä¬ÈÏµ¼ÈëError,Fatal¼¶ÓÊ¼ş£¬²»Çø±ğ´óĞ¡Ğ´£©
-# local maillevel=`echo $opt_s | awk -F']' '{print $1}' | sed 's/\[//g' | tr -s [A-Z] [a-z] `
-# if [ $maillevel = "error" -o $maillevel = "fatal" ];then
-#        /bin/mail_to_eip -s ${opt_s}
-#        if [ $? -ne 0 ];then
-#                echo "ERROR! ±¨¾¯ÓÊ¼şµ¼ÈëEIPÊ±´íÎó£¬Çë¼ì²é"
-#        fi
-# fi
-
-
-# ÅĞ¶ÏµÚÈı¸ö²ÎÊı£¬ÊÇÄÚÈİ»¹ÊÇÎÄ¼ş£¬Èç¹ûÊÇÎÄ¼ş£¬Ôò½øÒ»²½È·ÈÏÊÇ·ñ´øºó×º
+# åˆ¤æ–­ç¬¬ä¸‰ä¸ªå‚æ•°ï¼Œæ˜¯å†…å®¹è¿˜æ˜¯æ–‡ä»¶ï¼Œå¦‚æœæ˜¯æ–‡ä»¶ï¼Œåˆ™è¿›ä¸€æ­¥ç¡®è®¤æ˜¯å¦å¸¦åç¼€
 if [  -z "$opt_p" ];then
-	# ¸½¼ş»òÄÚÈİ²ÎÊıÎª¿Õ
+	# é™„ä»¶æˆ–å†…å®¹å‚æ•°ä¸ºç©º
         mail -s "${_SUBJECT}" "${_MAILIST}" < /dev/null
 	if [ $? -eq 0 ];then
                 return 0
         else
-                echo "·¢ËÍÄÚÈİÓÊ¼şÊ±´íÎó£¬Çë¼ì²é"
+                echo "å‘é€å†…å®¹é‚®ä»¶æ—¶é”™è¯¯ï¼Œè¯·æ£€æŸ¥"
                 return -7
         fi
 fi
 
 if [ -f "$opt_p" ];then
-        # ¸Ã²ÎÊıÎªÎÄ¼ş£¬ÅĞ¶Ïºó×º
+        # è¯¥å‚æ•°ä¸ºæ–‡ä»¶ï¼Œåˆ¤æ–­åç¼€
 	file_name=`echo "$opt_p" | awk -F'/' '{print $NF}'`
 	echo $file_name | grep '\.' &>/dev/null
 	if [ $? -eq 0 ];then
-		# ´øºó×º
+		# å¸¦åç¼€
 		sub_fix=`echo $file_name | awk -F'.' '{print $NF}' | tr [A-Z] [a-z]`
 		if [ $sub_fix != "html" -a $sub_fix != "txt" ];then
-			echo "¸½¼ş²ÎÊıÎÄ¼şºó×º²»Îªhtml»òtxt"
+			echo "é™„ä»¶å‚æ•°æ–‡ä»¶åç¼€ä¸ä¸ºhtmlæˆ–txt"
 			return -4
 		fi
-		# ·¢ËÍÓÊ¼ş	
+		# å‘é€é‚®ä»¶	
 	   cat "$opt_p" | formail -I "MIME-Version:1.0" -I "Content-type:text/html" -I "Subject:${_SUBJECT}" -I "To:${_MAILIST}" |/usr/sbin/sendmail -oi "${_MAILIST}"
 		if [ $? -eq 0 ];then
 			return 0
 		else
-			echo "·¢ËÍ´øºó×º¸½¼şÓÊ¼şÊ±´íÎó£¬Çë¼ì²é"
+			echo "å‘é€å¸¦åç¼€é™„ä»¶é‚®ä»¶æ—¶é”™è¯¯ï¼Œè¯·æ£€æŸ¥"
 			return -5
 		fi
 	else
-		# ¸½¼ş²»´øºó×º£¬Ö±½Ómail·¢ËÍÓÊ¼ş
+		# é™„ä»¶ä¸å¸¦åç¼€ï¼Œç›´æ¥mailå‘é€é‚®ä»¶
 		cat "$opt_p" | mail -s "${_SUBJECT}" "${_MAILIST}"
 		if [ $? -eq 0 ];then
                         return 0
                 else
-                        echo "·¢ËÍÎŞ¸½¼şÓÊ¼şÊ±´íÎó£¬Çë¼ì²é"
+                        echo "å‘é€æ— é™„ä»¶é‚®ä»¶æ—¶é”™è¯¯ï¼Œè¯·æ£€æŸ¥"
 	                return -6
                 fi
 	fi
 
 else
-	# ¸Ã²ÎÊıÎªÄÚÈİ£¬Ö±½Ó·¢ËÍÓÊ¼ş	
+	# è¯¥å‚æ•°ä¸ºå†…å®¹ï¼Œç›´æ¥å‘é€é‚®ä»¶	
         echo "$opt_p" | mail -s "${_SUBJECT}" "${_MAILIST}" 	
         if [ $? -eq 0 ];then
                 return 0
         else
-                echo "·¢ËÍÄÚÈİÓÊ¼şÊ±´íÎó£¬Çë¼ì²é"
+                echo "å‘é€å†…å®¹é‚®ä»¶æ—¶é”™è¯¯ï¼Œè¯·æ£€æŸ¥"
                 return -7
         fi
 fi
 
 }
 
-check_host_valid()
-{
-OP_USER=""
-OP_MAIL_MASTER=
-#OP_MAIL_MASTER=
-
-local i;
-local j=0;
-
-if [  -z "$1" ];then
-	echo "error: mail id is black"
-	return -1
-fi
-
-for i in ${OP_USER} ;do
-	id ${i} | grep '\-OP' &>/dev/null
-	if [ $? -eq 0 ];then 
-		let j=j+1
-	fi
-done
-if [ ${j} -gt 3 ];then
-	# ¸Ã»úÆ÷OPÓĞÈ¨ÏŞ£¬Ôò½øÒ»²½È¥µô²âÊÔ»ú
-	echo "`hostname -s`" | grep -v '\-blmon[0-9]' | grep -v '\-test' &>/dev/null
-	if [ $? -eq 0 ];then 
-		# ·¢¾¯¸æÓÊ¼ş¸øMAIL_MASTER£¬ÌáĞÑspiderÏßÉÏ»úÆ÷µÄÓÊ¼ş±¨¾¯¿ÉÄÜ´æÔÚÒì³£ÊÕ¼şÈË
-		echo "Mail or gsm list include ( ${1} ) at `pwd`" | mail -s "[warn][send_msg.sh][`whoami`@`hostname -s`][${FUNC_NAME}ÊÕ¼şÈË²ÎÊı°üÀ¨(${1}),¿ÉÄÜ²»¹æ·¶][`date +%H:%M:%S`]" "${OP_MAIL_MASTER}" 
-		echo "waring! include personal postbox"
-		return 0
-	fi
-else
-	# OPÎŞÈ¨ÏŞ£¬ËµÃ÷ÊÇÍâ×é»úÆ÷£¬»òÊÇ×éÄÚ·ÇÏßÉÏ·şÎñ»úÆ÷
-	return 0
-fi	
-}
-
 send_gsm_msg()
 {
-# ·¢ËÍ¶ÌĞÅµÄÍ¨ÓÃ³ÌĞò
-# ÓÃ·¨£ºsend_gsm_msg  -t "±¨¾¯¼¶±ğÊı" -s "¼òÒªÓÊ¼ş±êÌâ"
-# ²ÎÊı£º
-#       -t: ±¨¾¯¼¶±ğÊı£ºRDÖ»ĞèÒªÌá¹©warninglevelÅäÖÃÖĞµÄ±¨¾¯¼¶±ğ£¬È¡ÖµÎª0-3¡£½Å±¾»á×Ô¶¯ÌáÈ¡¸Ã¼¶±ğµÄÊÕ¼şĞÅÏ¢¡£
-#       -s: RDÖ»ĞèÒªÌá¹©×î¹Ø¼üµÄ£¬¼ò½àµÄ [¼òÒª±¨¾¯ĞÅÏ¢] ¼´¿É¡£ÆäËü [Àà±ğ][Ä£¿éÃû][»úÆ÷Ãû][Ê±¼ä] ĞÅÏ¢ÓÉ½Å±¾×Ô¶¯²¹È«
+# å‘é€çŸ­ä¿¡çš„é€šç”¨ç¨‹åº
+# ç”¨æ³•ï¼šsend_gsm_msg  -t "æŠ¥è­¦çº§åˆ«æ•°" -s "ç®€è¦é‚®ä»¶æ ‡é¢˜"
+# å‚æ•°ï¼š
+#       -t: æŠ¥è­¦çº§åˆ«æ•°ï¼šRDåªéœ€è¦æä¾›warninglevelé…ç½®ä¸­çš„æŠ¥è­¦çº§åˆ«ï¼Œå–å€¼ä¸º0-3ã€‚è„šæœ¬ä¼šè‡ªåŠ¨æå–è¯¥çº§åˆ«çš„æ”¶ä»¶ä¿¡æ¯ã€‚
+#       -s: RDåªéœ€è¦æä¾›æœ€å…³é”®çš„ï¼Œç®€æ´çš„ [ç®€è¦æŠ¥è­¦ä¿¡æ¯] å³å¯ã€‚å…¶å®ƒ [ç±»åˆ«][æ¨¡å—å][æœºå™¨å][æ—¶é—´] ä¿¡æ¯ç”±è„šæœ¬è‡ªåŠ¨è¡¥å…¨
 
-# ·µ»ØÖµ£º
-#  0: Õı³£·¢ËÍ 
-# -1: ²ÎÊı¸öÊı²»¶Ô
-# -2: ²ÎÊıÏî²»¶Ô£¨¼´Ã»ÓĞ-t,-sµÈ²ÎÊı£©
-# -3: ¶ÌĞÅ±êÌâ¸ñÊ½²»·ûºÏ¹æ·¶
-# -4: ·¢ËÍ¶ÌĞÅÄÚÈİ´íÎó
-# -5: ÅäÖÃÎÄ¼şwarninglevelÎ»ÖÃ²»¶Ô»ò²»´æÔÚ
+# è¿”å›å€¼ï¼š
+#  0: æ­£å¸¸å‘é€ 
+# -1: å‚æ•°ä¸ªæ•°ä¸å¯¹
+# -2: å‚æ•°é¡¹ä¸å¯¹ï¼ˆå³æ²¡æœ‰-t,-sç­‰å‚æ•°ï¼‰
+# -3: çŸ­ä¿¡æ ‡é¢˜æ ¼å¼ä¸ç¬¦åˆè§„èŒƒ
+# -4: å‘é€çŸ­ä¿¡å†…å®¹é”™è¯¯
+# -5: é…ç½®æ–‡ä»¶warninglevelä½ç½®ä¸å¯¹æˆ–ä¸å­˜åœ¨
 
 local FUNC_NAME="send_gsm_msg"
 
 # check parameter 
 if [ $# -ne 4 ];then
         echo "$FUNC_NAME parameter error!"
-        echo "Usage: $FUNC_NAME -t "±¨¾¯¼¶±ğÊı" -s "¼òÒªÓÊ¼ş±êÌâ""
+        echo "Usage: $FUNC_NAME -t "æŠ¥è­¦çº§åˆ«æ•°" -s "ç®€è¦é‚®ä»¶æ ‡é¢˜""
         return -1
 fi
 
-# »ñÈ¡²ÎÊı
+# è·å–å‚æ•°
 OPTIND=1
 while getopts "t:s:" opt;
 do
@@ -226,19 +172,19 @@ do
         esac
 done
 
-# ¼ì²éwarninglevelÖĞ£¬Ä£¿éÃûÊÇ·ñÎª²»¿Õ
+# æ£€æŸ¥warninglevelä¸­ï¼Œæ¨¡å—åæ˜¯å¦ä¸ºä¸ç©º
 if [ -z "${MODULE_NAME}" ];then
         echo "the conf item MODULE_NAME is black"
         return -8
 fi
 
-# ÅĞ¶Ï±¨¾¯¼¶±ğ
+# åˆ¤æ–­æŠ¥è­¦çº§åˆ«
 if [ "$opt_t" -ge ${LEVEL_NUM} -o "$opt_t"  -ge 4 ];then
         echo "warnling level error!,must be 0-3"
         return -1
 fi
 
-# ¶ÁÈ¡ÊÕ¼şÈËĞÅÏ¢
+# è¯»å–æ”¶ä»¶äººä¿¡æ¯
 case "${opt_t}" in
         "0") _WARNAME=${LEVEL_0_NAME};  _MAILIST=${LEVEL_0_MAILLIST};   _GSMLIST=${LEVEL_0_GSMLIST};
         ;;
@@ -255,11 +201,6 @@ esac
 _DATE=`date +%H:%M:%S`
 _SUBJECT="[${_WARNAME}][${MODULE_NAME}][`hostname -s`][${opt_s}][${_DATE}]"
 
-echo ${_GSMLIST}| grep 'g_psop_' &>/dev/null
-if [ $? -ne 0 ];then
-	check_host_valid "${_GSMLIST}"
-fi
-
 local gsmname=0
 for tmpi_Qz4_tUw9Pg in ${_GSMLIST};do
 	# Message format: phone_num@content	
@@ -272,7 +213,7 @@ done
 if [ $gsmname -eq 0 ];then
 	return 0           
 else
-	echo "·¢ËÍ¶ÌĞÅÄÚÈİ´æÔÚÒì³£,¹²${gsmname}´ÎÎ´³É¹¦£¬Çë¼ì²é"
+	echo "å‘é€çŸ­ä¿¡å†…å®¹å­˜åœ¨å¼‚å¸¸,å…±${gsmname}æ¬¡æœªæˆåŠŸï¼Œè¯·æ£€æŸ¥"
     return -4
 fi
 
