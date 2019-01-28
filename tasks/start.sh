@@ -3,22 +3,26 @@
 function usage()
 {
     echo "USAGE: $1" 
-    echo -e "\t-m <module_name>\t����, ģ��Ŀ¼��" 
-    echo -e "\t-c <conf_file>\t\t��ѡ, ģ��confĿ¼�������ļ���, Ĭ��Ϊmodule.conf"
-    echo -e "\t-t <timeout>\t\t��ѡ, ������ҵ���ĳ�ʱʱ��, ����Ϊ������, ��λΪСʱ"
-    echo -e "\t-a <args>\t\t��ѡ, �����Զ���������������"
-    echo -e "\t-h <help>\t\t��ӡUsage"
+    echo -e "\t-m <module_name>\t必须, 模块目录名" 
+    echo -e "\t-c <conf_file>\t\t可选, 模块conf目录下配置文件名, 默认为module.conf"
+    echo -e "\t-t <timeout>\t\t可选, 整个作业流的超时时间, 可以为浮点数, 单位为小时"
+    echo -e "\t-a <args>\t\t可选, 其他自定义任务启动参数"
+    echo -e "\t-h <help>\t\t打印Usage"
 }
+
+# TO BE IMPLEMENTED
+function send_mail_msg() {}
+# TO BE IMPLEMENTED
+function send_gsm_msg() {}
 
 function read_warning_level()
 {
     source $1
-    source ${SEND_MSG_SH}
     return 0
 }
 
-# �ж�timeout�����Ƿ�Ϊ��������
-# ���򷵻�0, ���Ƿ���1
+# 判断timeout参数是否为正浮点数
+# 是则返回0, 不是返回1
 function check_timeout_val()
 {
     local var=$(echo "$1 > 0" | bc 2>/dev/null)
