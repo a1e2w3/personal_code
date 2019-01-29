@@ -28,12 +28,14 @@ public:
     template<class... Args>
     void set_command(const std::string& command, Args&&... args) {
         _params.clear();
+        _params.reserve(sizeof...(Args) + 1);
         append_param(command, std::forward<Args>(args)...);
     }
 
     template<class... Args>
     void set_command(std::string&& command, Args&&... args) {
         _params.clear();
+        _params.reserve(sizeof...(Args) + 1);
         append_param(std::move(command), std::forward<Args>(args)...);
     }
 

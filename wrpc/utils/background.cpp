@@ -19,7 +19,6 @@ namespace wrpc {
 
 static common::ThreadPool *g_bg_threads = nullptr;
 static common::TimerTaskQueue g_task_queue;
-static std::once_flag g_init_bg_threads_once;
 
 static void stop_thread_pool() {
     if (g_bg_threads != nullptr) {
@@ -37,6 +36,7 @@ static void start_thread_pool() {
 }
  
 BackgroundTaskId add_background_task(const common::TaskFunc& func, uint64_t delay_ms) {
+    static std::once_flag g_init_bg_threads_once;
     std::call_once(g_init_bg_threads_once, start_thread_pool);
     if (g_bg_threads != nullptr) {
         // 防止后台线程停止后(可能任务队列也被析构), 继续往队列插入任务

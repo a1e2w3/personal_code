@@ -21,6 +21,9 @@ namespace wrpc {
 Connection::Connection(const EndPoint& end_point)
     : _end_point(end_point), _sock_fd(-1) {}
 
+Connection::Connection(EndPoint&& end_point)
+    : _end_point(std::move(end_point)), _sock_fd(-1) {}
+
 Connection::~Connection() {
     close();
 }

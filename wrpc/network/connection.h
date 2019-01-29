@@ -30,7 +30,12 @@ private:
 
 public:
     explicit Connection(const EndPoint& end_point);
+    explicit Connection(EndPoint&& end_point);
     ~Connection();
+
+    // allow move
+    Connection(Connection&&) = default;
+    Connection& operator = (Connection&&) = default;
 
     int connect(int32_t timeout_ms);
 
@@ -38,7 +43,7 @@ public:
 
     bool connected() const { return _sock_fd > 0; }
 
-    EndPoint end_point() const { return _end_point; }
+    const EndPoint& end_point() const { return _end_point; }
 
     virtual ssize_t read(char* buf, size_t size, int32_t timeout_ms);
 
@@ -68,7 +73,14 @@ public:
             size_t max_size = DEFAULT_MAX_SIZE)
             : _max_size(max_size),
               _connection_creator(connection_creator) {}
+    explicit ConnectionPool(ConnectionCreator&& connection_creator,
+            size_t max_size = DEFAULT_MAX_SIZE)
+            : _max_size(max_size),
+              _connection_creator(std::move(connection_creator)) {}
     ~ConnectionPool() {}
+
+    // allow move constructor
+    ConnectionPool(ConnectionPool&&) = default;
 
     // fetch a connection and hand over the ownership
     // create new connection by _connection_creator if pool is empty
