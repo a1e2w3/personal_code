@@ -70,7 +70,7 @@ private:
         EndPoint end_point;
         std::unique_ptr<ConnectionPool> conn_pool;
         EndPointStatus status;
-        volatile int32_t err_count;
+        int32_t err_count;
 
         explicit EndPointWrapper(const EndPoint& ep)
             : end_point(ep), conn_pool(), status(NORMAL), err_count(0) {}

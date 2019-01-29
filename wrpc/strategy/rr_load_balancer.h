@@ -10,6 +10,7 @@
 #ifndef WRPC_STRATEGY_RR_LOAD_BALANCER_H_
 #define WRPC_STRATEGY_RR_LOAD_BALANCER_H_
  
+#include <atomic>
 #include <mutex>
 #include <vector>
 
@@ -34,7 +35,7 @@ public:
 
 private:
     std::mutex _mutex;
-    volatile uint64_t _rr_index;
+    std::atomic<uint64_t> _rr_index;
 
     std::vector<EndPoint> _alive_list;
     std::vector<EndPoint> _dead_list;

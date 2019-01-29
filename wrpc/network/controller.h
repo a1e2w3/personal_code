@@ -313,7 +313,7 @@ private:
     BackgroundTaskId _timeout_task_id;
     BackgroundTaskId _backup_request_task_id;
 
-    volatile uint32_t _user_thread_joining;
+    uint32_t _user_thread_joining;
     std::mutex _mutex;  // mutex
     std::condition_variable _cond; // cond
     typedef std::function<void()> TaskFunc;
@@ -352,7 +352,7 @@ private:
 
 private:
     std::mutex _mutex;
-    volatile ControllerId _cur_id;
+    ControllerId _cur_id;
     std::unordered_map<ControllerId, ControllerWeakPtr> _id_2_instance_map;
 };
  

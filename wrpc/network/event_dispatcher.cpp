@@ -57,7 +57,7 @@ void EventDispatcher::stop(bool wait) {
     if (!is_running()) {
         return;
     }
-    _stop = true;
+    _stop.store(true);
 
     // wakeup epoll wait
     if (_epoll_fd >= 0) {
@@ -71,7 +71,7 @@ void EventDispatcher::stop(bool wait) {
 }
 
 bool EventDispatcher::is_running() const {
-	return (!_stop  && _epoll_fd >= 0 && _dispatch_thread.get() != nullptr);
+	return (_epoll_fd >= 0 && _dispatch_thread.get() != nullptr && !_stop.load());
 }
 
 void EventDispatcher::join() {
@@ -127,7 +127,7 @@ void EventDispatcher::thread_run_wrapper() {
     const uint32_t EXPECTED_EVENTS = (EPOLLIN | EPOLLERR | EPOLLHUP | EPOLLRDHUP);
     size_t event_size = WRPC_EVENT_DISPATCHER_EVENT_SIZE;
     epoll_event e[event_size];
-    while (!_stop) {
+    while (!_stop.load()) {
 #ifdef WRPC_ADDITIONAL_EPOLL
         // Performance downgrades in examples.
         int n = epoll_wait(_epoll_fd, e, event_size, 0);
@@ -137,7 +137,7 @@ void EventDispatcher::thread_run_wrapper() {
 #else
         const int n = epoll_wait(_epoll_fd, e, event_size, -1);
 #endif
-        if (_stop) {
+        if (_stop.load()) {
             // epoll_ctl/epoll_wait should have some sort of memory fencing
             // guaranteeing that we(after epoll_wait) see _stop set before
             // epoll_ctl.

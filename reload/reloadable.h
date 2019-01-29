@@ -8,6 +8,7 @@
  
 #pragma once
 
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <mutex>
@@ -63,9 +64,9 @@ public:
     }
 
     int release_unused() {
-        version_t version_to_release = _version + 1;
+        version_t version_to_release = _version.load() + 1;
         version_t index = version_to_release & 0x01;
-        if (_refs[index] == 0 && !_resource_container[index]) {
+        if (_refs[index].load() == 0 && !_resource_container[index]) {
             std::lock_guard<std::mutex> lock(_reload_mutex);
             // try release under lock
             return try_release_version(version_to_release);
@@ -76,16 +77,16 @@ public:
     }
 
     ResourcePointer get_resource() {
-    	ResourcePointer handler(this, _version);
+    	ResourcePointer handler(this, _version.load());
         // 此处会出现两种情况
         // 1. _version被修改, 后面会检测到cur_ver != version
         // 2. _version未修改, cur_ver已被引用计数, 不用担心被释放
 
         // check version changed
-        if (handler.version() != _version) {
+        while (handler.version() != _version.load()) {
             // version被修改, 因cur_ver已增加引用计数, 无法被连续reload
             // 只用更新最新的version, ref后, 再释放原有的引用计数
-            handler.rebind_version(_version);
+            handler.rebind_version(_version.load());
         }
         return handler;
     }
@@ -93,8 +94,9 @@ public:
 private:
     int load_reource(void *params, bool is_reload) {
         std::lock_guard<std::mutex> lock(_reload_mutex);
-        int32_t index_to_load = (is_reload ? _version + 1 : _version) & 0x01;
-        if (_refs[index_to_load] != 0) {
+        auto cur_version = _version.load();
+        int32_t index_to_load = (is_reload ? cur_version + 1 : cur_version) & 0x01;
+        if (_refs[index_to_load].load() != 0) {
             return RET_BUFFER_INUSE;
         }
 
@@ -104,20 +106,20 @@ private:
         }
 
         _resource_container[index_to_load].reset(resource);
-        _version = index_to_load;
+        _version.store(index_to_load);
         if (is_reload) {
-            try_release_version((_version + 1) & 0x01);
+            try_release_version((index_to_load + 1) & 0x01);
         }
         return RET_SUCC;
     }
 
     // should be under lock
     int try_release_version(int32_t version_to_release) {
-        if (version_to_release == _version) {
+        if (version_to_release == _version.load()) {
             return RET_BUFFER_INUSE;
         }
         int32_t index = version_to_release & 0x01;
-        if (_refs[index] != 0 || _resource_container[index]) {
+        if (_refs[index].load() != 0 || _resource_container[index] == nullptr) {
             return RET_BUFFER_INUSE;
         }
         _resource_container[index].reset();
@@ -144,8 +146,8 @@ private:
 private:
     std::mutex _reload_mutex;
     ResourceLoader _loader;
-    volatile version_t _version;
-    volatile ref_count_t _refs[2];
+    std::atomic<version_t> _version;
+    std::atomic<ref_count_t> _refs[2];
     resource_ptr_type _resource_container[2]; // duel buffer
 };
 

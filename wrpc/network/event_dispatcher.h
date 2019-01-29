@@ -45,7 +45,7 @@ private:
 
 private:
     int _epoll_fd;
-    volatile bool _stop;
+    std::atomic<bool> _stop;
     std::atomic<bool> _is_running;
     std::unique_ptr<std::thread> _dispatch_thread;
 
