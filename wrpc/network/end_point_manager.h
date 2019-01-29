@@ -76,10 +76,11 @@ private:
             : end_point(ep), conn_pool(), status(NORMAL), err_count(0) {}
         // allow move
         EndPointWrapper(EndPointWrapper&& other)
-            : end_point(other.end_point),
+            : end_point(std::move(other.end_point)),
               conn_pool(std::move(other.conn_pool)),
               status(other.status),
               err_count(other.err_count) {}
+        EndPointWrapper(const EndPointWrapper&) = delete;
         ~EndPointWrapper() {}
 
         void release_connect_pool() { conn_pool.reset(); }
