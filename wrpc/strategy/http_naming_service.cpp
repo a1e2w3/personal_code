@@ -21,7 +21,7 @@
 namespace wrpc {
  
 int HttpNamingService::refresh(const std::string& address) {
-    port_t port = 80; // default port 80
+    unsigned long port = 80; // default port as 80
     std::string domain;
     std::string port_str;
     if (0 == split_2_kv(address, ':', &domain, &port_str)) {
@@ -58,17 +58,13 @@ int HttpNamingService::refresh(const std::string& address) {
     }
 
     EndPointList ep_list;
-    char ip_buf[16];
     for (auto cursor = res; cursor != nullptr; cursor = cursor->ai_next) {
         struct sockaddr_in * addr = reinterpret_cast<struct sockaddr_in *>(cursor->ai_addr);
-        if (nullptr == inet_ntop(AF_INET, &addr->sin_addr, ip_buf, sizeof(ip_buf))) {
-            WARNING("inet_ntop fail, errno:[%d:%s], continue", errno, strerror(errno));
-            continue;
-        }
-
+        //port_t ep_port = addr->sin_port;
+        port_t ep_port = port;
+        ep_list.emplace(addr->sin_addr, ep_port);
         DEBUG("resolved instance [%s:%u] address [%s] protocol [%s].",
-                ip_buf, port, address.c_str(), protocol().c_str());
-        ep_list.emplace(ip_buf, port);
+                ipv4_to_string(addr->sin_addr).c_str(), ep_port, address.c_str(), protocol().c_str());
     }
     freeaddrinfo(res);
 

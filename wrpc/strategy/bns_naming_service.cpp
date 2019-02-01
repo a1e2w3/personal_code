@@ -48,7 +48,7 @@ int BNSNamingService::refresh(const std::string& address) {
 
         DEBUG("get instance[%s:%d] for bns[%s]",
                 info.host_ip_str().c_str(), info.port(), address.c_str());
-        ep_list.emplace(info.host_ip_str(), info.port());
+        ep_list.emplace(string_to_ipv4(info.host_ip_str()), info.port());
     }
 
     if (ep_list.empty()) {

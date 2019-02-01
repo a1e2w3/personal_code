@@ -8,68 +8,39 @@
  
 #include "common/end_point.h"
  
-#include <sstream>
+#include <memory>
 
 namespace wrpc {
 
-static std::string end_point_to_string(const std::string& host, port_t port) {
-    std::ostringstream oss;
-    oss << host << ":" << port;
-    return oss.str();
-}
- 
-EndPoint::EndPoint(const std::string& host, port_t port)
-    : _host(host), _port(port),
-      _end_point_str(end_point_to_string(_host, _port)), _hash_code(0) {}
+std::string EndPoint::to_string() const {
+    static const size_t PORT_STRING_LEN = 5; // not contain ':', max port 65535
+    char buffer[INET_ADDRSTRLEN + PORT_STRING_LEN + 1];
 
-EndPoint::EndPoint(std::string&& host, port_t port)
-    : _host(std::move(host)), _port(port),
-      _end_point_str(end_point_to_string(_host, _port)), _hash_code(0) {}
-
-EndPoint::EndPoint(const EndPoint& other)
-    : _host(other._host), _port(other._port),
-      _end_point_str(other._end_point_str), _hash_code(other._hash_code) {}
-
-EndPoint::EndPoint(EndPoint&& other)
-    : _host(std::move(other._host)),
-      _port(other._port),
-      _end_point_str(std::move(other._end_point_str)),
-      _hash_code(other._hash_code) {
-    other._port = 0;
-    other._hash_code = 0;
-}
-
-EndPoint::~EndPoint() {}
-
-EndPoint& EndPoint::operator = (const EndPoint& other) {
-    if (this != &other) {
-        _host = other._host;
-        _port = other._port;
-        _end_point_str = other._end_point_str;
-        _hash_code = other._hash_code;
+    if (inet_ntop(AF_INET, &_ip, buffer, INET_ADDRSTRLEN) == nullptr) {
+        return "";
     }
-    return *this;
+    char* buf = buffer + strnlen(buffer, INET_ADDRSTRLEN);
+    *buf = ':';
+    ++buf;
+    snprintf(buf, PORT_STRING_LEN + 1, "%u", _port);
+    return std::string(buffer);
 }
 
-EndPoint& EndPoint::operator = (EndPoint&& other) {
-    if (this != &other) {
-        _host = std::move(other._host);
-        _port = other._port;
-        _end_point_str = std::move(other._end_point_str);
-        _hash_code = other._hash_code;
 
-        other._port = 0;
-        other._hash_code = 0;
+int EndPoint::to_sock_addr(struct sockaddr_in* addr) const {
+    if (addr == nullptr || !is_valid()) {
+        return NET_INVALID_ARGUMENT;
     }
-    return *this;
+
+    memset(addr, 0, sizeof(struct sockaddr_in));
+    addr->sin_family = AF_INET;
+    addr->sin_port = htons(_port);
+    addr->sin_addr = _ip;
+    return NET_SUCC;
 }
 
 size_t EndPoint::hash_code() const {
-    if (_hash_code == 0) {
-        std::hash<std::string> string_hasher;
-        _hash_code = string_hasher(to_string());
-    }
-    return _hash_code;
+    return std::hash<EndPoint>()(*this);
 }
  
 } // end namespace wrpc

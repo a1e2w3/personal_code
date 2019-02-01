@@ -13,30 +13,46 @@
 #include <stdio.h>
 #include <string>
 #include <sys/socket.h>
+
+#include "utils/common_define.h"
  
 namespace wrpc {
 
+template<typename IntType>
+bool is_valid_port(IntType port) { return port > 0 && port < 65535; }
+
 /**
- * @brief 校验port是否合法(0 < port <= 65535)
+ * @brief ipv4转string
  *
- * @param [in] port : int
+ * @param [in] ip : const IPv4Address &
  *
- * @return bool
- *     true: 合法
- *     false: 不合法
+ * @return std::string
+ *        ip address if success
+ *        "" if failed
  */
-bool is_valid_port(uint32_t port);
+std::string ipv4_to_string(const IPv4Address& ip);
+
+/**
+ * @brief string转ipv4
+ *
+ * @param [in] ip : const std::string &
+ *
+ * @return IPv4Address
+ *        ip address if success
+ *        INADDR_NONE if failed
+ */
+IPv4Address string_to_ipv4(const std::string& ip_str);
 
 /**
  * @brief hostname转ip
  *
  * @param [in] hostname : const std::string &
  *
- * @return std::string
+ * @return IPv4Address
  *        ip address if success
- *        "" if failed
+ *        INADDR_NONE if failed
  */
-std::string hostname_to_ip(const std::string& hostname);
+IPv4Address hostname_to_ip(const std::string& hostname);
 
 /*
  * @brief 尝试建立socket连接

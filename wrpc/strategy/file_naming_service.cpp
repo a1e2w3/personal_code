@@ -31,7 +31,7 @@ int FileNamingService::refresh(const std::string& address) {
 
         if (0 == split_2_kv(line, ':', &host, &port_str)) {
             // parse port
-            port_t port = 0;
+            unsigned long port = 0;
             try {
                 port = std::stoul(port_str);
             } catch(...) {
@@ -45,8 +45,8 @@ int FileNamingService::refresh(const std::string& address) {
             }
 
             // get ip from host
-            std::string host_ip = hostname_to_ip(host);
-            if (!host_ip.empty()) {
+            IPv4Address host_ip = hostname_to_ip(host);
+            if (host_ip != IPV4_NONE) {
                 ep_list.emplace(host_ip, port);
             }
         }

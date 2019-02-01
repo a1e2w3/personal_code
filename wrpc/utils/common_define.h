@@ -9,10 +9,42 @@
 #ifndef WRPC_UTILS_COMMON_DEFINE_H_
 #define WRPC_UTILS_COMMON_DEFINE_H_
  
+#include <netinet/in.h> // struct in_addr
 #include <stdint.h>
 #include <string>
+#include <string.h>
 
 namespace wrpc {
+
+typedef struct in_addr IPv4Address; // ipv4
+typedef uint16_t port_t;
+
+static const IPv4Address IPV4_ANY = { INADDR_ANY };    // 0.0.0.0
+static const IPv4Address IPV4_NONE = { INADDR_NONE };  // ÎÞÐ§ip
+
+// relational operators
+// make IPv4Address can be the key of std::map and std::unordered_map
+inline bool operator < (const IPv4Address& lhs, const IPv4Address& rhs) {
+    return lhs.s_addr < rhs.s_addr;
+}
+inline bool operator > (const IPv4Address& lhs, const IPv4Address& rhs) {
+    return lhs.s_addr > rhs.s_addr;
+}
+inline bool operator <= (const IPv4Address& lhs, const IPv4Address& rhs) {
+    return lhs.s_addr <= rhs.s_addr;
+}
+inline bool operator >= (const IPv4Address& lhs, const IPv4Address& rhs) {
+    return lhs.s_addr >= rhs.s_addr;
+}
+inline bool operator == (const IPv4Address& lhs, const IPv4Address& rhs) {
+    return lhs.s_addr == rhs.s_addr;
+}
+inline bool operator != (const IPv4Address& lhs, const IPv4Address& rhs) {
+    return lhs.s_addr != rhs.s_addr;
+}
+inline std::ostream& operator << (std::ostream& os, const IPv4Address& ip) {
+    return os << ipv4_to_string(ip);
+}
  
 // network return codes
 
@@ -67,7 +99,21 @@ inline T* reconstruct(T* pointer, Args&&... args) {
     return pointer;
 }
 
-}
+} // end namespace wrpc
+
+namespace std {
+// specialization std::hash for wrpc::IPv4Address
+// make IPv4Address can be the key of unordered_map
+template<>
+struct hash<::wrpc::IPv4Address> {
+public:
+    size_t operator () (const ::wrpc::IPv4Address& ip) const {
+        return _hasher(ip.s_addr);
+    }
+private:
+    std::hash<in_addr_t> _hasher;
+};
+} // end namepace std
  
 #endif // WRPC_UTILS_COMMON_DEFINE_H_
  

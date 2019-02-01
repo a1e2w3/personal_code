@@ -21,9 +21,6 @@ namespace wrpc {
 Connection::Connection(const EndPoint& end_point)
     : _end_point(end_point), _sock_fd(-1) {}
 
-Connection::Connection(EndPoint&& end_point)
-    : _end_point(std::move(end_point)), _sock_fd(-1) {}
-
 Connection::~Connection() {
     close();
 }
@@ -34,31 +31,23 @@ int Connection::connect(int32_t timeout_ms) {
         return NET_SUCC;
     }
 
-    if (!is_valid_port(_end_point.port())) {
-        WARNING("Connection invalid port[%u]", _end_point.port());
-        return NET_INVALID_ARGUMENT;
-    }
-
     struct sockaddr_in addr;
-    bzero(&addr, sizeof(addr));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(_end_point.port());
-    int ret = inet_pton(AF_INET, _end_point.host().c_str(), &addr.sin_addr);
-    if (1 != ret) {
-        WARNING("Connection inet_pton failed: %d host: %s", ret, _end_point.host().c_str());
-        return NET_INTERNAL_ERROR;
+    int ret = _end_point.to_sock_addr(&addr);
+    if (ret != NET_SUCC) {
+        WARNING("Connection: invalid end point[%s]", _end_point.to_string().c_str());
+        return ret;
     }
     
     int sock_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sock_fd < 0) {
-    	WARNING("Connection create socket failed: %d, errno: [%d:%s]", sock_fd, errno, strerror(errno));
+        WARNING("Connection: create socket failed: %d, errno: [%d:%s]", sock_fd, errno, strerror(errno));
         return NET_INTERNAL_ERROR;
     }
 
     ret = connect_with_timeout(sock_fd, (const struct sockaddr*)(&addr), timeout_ms);
     if (ret != NET_SUCC) {
         close_connection(sock_fd);
-        WARNING("Connection connect failed: %d address:[%s]", ret, _end_point.to_string().c_str());
+        WARNING("Connection: connect failed: %d address:[%s]", ret, _end_point.to_string().c_str());
         return ret;
     }
     _sock_fd = sock_fd;
@@ -85,7 +74,7 @@ ssize_t Connection::write(const char* buf, size_t size, int32_t timeout_ms) {
 }
 
 ConnectionPtr ConnectionPool::fetch(int32_t timeout_ms) {
-	std::lock_guard<std::mutex> lock(_mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
     if (_pool.empty()) {
         return _connection_creator(timeout_ms);
     } else {
@@ -96,14 +85,14 @@ ConnectionPtr ConnectionPool::fetch(int32_t timeout_ms) {
 }
 
 void ConnectionPool::give_back(ConnectionPtr&& connection) {
-	if (connection) {
-	    std::lock_guard<std::mutex> lock(_mutex);
+    if (connection) {
+        std::lock_guard<std::mutex> lock(_mutex);
         if (_pool.size() < _max_size) {
             _pool.push_back(std::move(connection));
         } else {
             connection.reset();
         }
-	}
+    }
 }
 
 size_t ConnectionPool::availability() const {

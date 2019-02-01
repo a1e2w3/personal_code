@@ -30,7 +30,7 @@ int ListNamingService::refresh(const std::string& address) {
 
         if (0 == split_2_kv(split, ':', &host, &port_str)) {
             // parse port
-            port_t port = 0;
+            unsigned long port = 0;
             try {
                 port = std::stoul(port_str);
             } catch(...) {
@@ -44,7 +44,7 @@ int ListNamingService::refresh(const std::string& address) {
             }
 
             // get ip from host
-            std::string host_ip = hostname_to_ip(host);
+            IPv4Address host_ip = hostname_to_ip(host);
             if (!host_ip.empty()) {
                 ep_list.emplace(host_ip, port);
             }

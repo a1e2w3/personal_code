@@ -18,17 +18,30 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "utils/common_define.h"
 #include "utils/timer.h"
 #include "utils/write_log.h"
  
 namespace wrpc {
 
-bool is_valid_port(uint32_t port) {
-    return port > 0 && port <= 65535;
+std::string ipv4_to_string(const IPv4Address& ip) {
+    char buffer[INET_ADDRSTRLEN];
+    if (inet_ntop(AF_INET, &ip, buffer, INET_ADDRSTRLEN) == nullptr) {
+        return "";
+    }
+    return std::string(buffer);
 }
 
-std::string hostname_to_ip(const std::string& hostname) {
+IPv4Address string_to_ipv4(const std::string& ip_str) {
+    IPv4Address ip;
+    int ret = inet_pton(AF_INET, ip_str.c_str(), &ip);
+    if (ret != 1) {
+        WARNING("inet_pton [%s] fail with ret [%d]", ip_str.c_str(), ret);
+        return IPV4_NONE;
+    }
+    return ip;
+}
+
+IPv4Address hostname_to_ip(const std::string& hostname) {
     struct addrinfo hints;
     struct addrinfo *res = nullptr;
 
@@ -42,20 +55,14 @@ std::string hostname_to_ip(const std::string& hostname) {
     if (ret != 0 || res == nullptr) {
         WARNING("getaddrinfo for host[%s] fail, errno:[%d:%s]",
                 hostname.c_str(), ret, gai_strerror(ret));
-        return "";
+        return IPV4_NONE;
     }
 
-    char ip_buf[16];
     struct sockaddr_in * addr = reinterpret_cast<struct sockaddr_in *>(res->ai_addr);
-    if (nullptr == inet_ntop(AF_INET, &addr->sin_addr, ip_buf, sizeof(ip_buf))) {
-        WARNING("inet_ntop for host[%s] fail, errno:[%d:%s]",
-                hostname.c_str(), errno, strerror(errno));
-        return "";
-    }
-
+    IPv4Address ip = addr->sin_addr;
     freeaddrinfo(res);
-    DEBUG("get ip [%s] for host [%s] success.", ip_buf, hostname.c_str());
-    return std::string(ip_buf);
+    DEBUG("get ip [%s] for host [%s] success.", ipv4_to_string(ip).c_str(), hostname.c_str());
+    return ip;
 }
  
 int connect_with_timeout(int fd, const struct sockaddr* addr, int32_t timeout_ms) {

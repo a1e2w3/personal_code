@@ -30,12 +30,7 @@ private:
 
 public:
     explicit Connection(const EndPoint& end_point);
-    explicit Connection(EndPoint&& end_point);
     ~Connection();
-
-    // allow move
-    Connection(Connection&&) = default;
-    Connection& operator = (Connection&&) = default;
 
     int connect(int32_t timeout_ms);
 
