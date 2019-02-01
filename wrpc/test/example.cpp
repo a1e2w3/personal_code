@@ -15,6 +15,8 @@
 #include "message/redis_message.h"
 #include "utils/timer.h"
 
+#include "test/mock_server.h"
+
 using namespace wrpc;
 
 static void callback(ControllerPtr controller, IRequest* req, IResponse* res) {
@@ -80,15 +82,21 @@ static void redis_test(const std::string& logid, const std::string& address) {
 }
  
 int main(int argc, char** argv) {
+    // start mock server
+    MockServer redis_server(12345, REDIS);
+    redis_server.start();
+
+    std::string address = "list://127.0.0.1:12345";
     std::string logid = "f852bf7fa11544ce9fefa26eaf9ff093";
     //if (argc > 1) {
     //    address = argv[1];
     //    fprintf(stderr, "address: %s.\n", address.c_str());
     //}
-    redis_test(logid, "list://10.194.6.59:9020");
+    redis_test(logid, address);
 
     // wait rpc in back ground
     std::this_thread::sleep_for(Seconds(1));
+    redis_server.shut_down();
     return 0;
 }
  

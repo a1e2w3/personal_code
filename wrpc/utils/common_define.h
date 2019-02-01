@@ -22,6 +22,8 @@ typedef uint16_t port_t;
 static const IPv4Address IPV4_ANY = { INADDR_ANY };    // 0.0.0.0
 static const IPv4Address IPV4_NONE = { INADDR_NONE };  // ÎÞÐ§ip
 
+extern std::string ipv4_to_string(const IPv4Address& ip);
+
 // relational operators
 // make IPv4Address can be the key of std::map and std::unordered_map
 inline bool operator < (const IPv4Address& lhs, const IPv4Address& rhs) {

@@ -26,8 +26,8 @@ typedef std::unordered_set<EndPoint> EndPointList;
 // cannot change once created
 class EndPoint {
 private:
-    IPv4Address _ip;
-    port_t _port;
+    IPv4Address _ip; // 网络字节序的ip
+    port_t _port;    // 主机字节序的port
 
 public:
     EndPoint() : _ip(IPV4_ANY), _port(0){}

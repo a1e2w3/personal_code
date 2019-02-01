@@ -10,6 +10,8 @@
 #include "network/controller.h"
 #include "message/http_message.h"
 
+#include "test/mock_server.h"
+
 using namespace wrpc;
 
 static void callback(ControllerPtr controller, IRequest* req, IResponse* res) {
@@ -44,21 +46,18 @@ static void callback(ControllerPtr controller, IRequest* req, IResponse* res) {
 }
 
 static void build_request(HttpRequest* request, const std::string& logid) {
-    request->set_method(HTTP_GET);
-    request->set_host("xiaodu.baidu.com");
+    //request->set_method(HTTP_GET);
+    request->set_host("www.baidu.com");
     request->set_content_type("application/json; charset=utf-8");
-    request->set_uri("/saiya/dcs/v1/user");
-    request->set_from("saiya/1.0");
-    request->set_authorization("Bearer xxxx");
-    request->set_header("Dueros-Device-Id", "123456_test");
-    request->set_header("saiyalogid", logid.c_str());
-    request->set_header("x-client", "avsproxy");
+    request->set_uri("/http/test/v1");
+    request->set_from("wrpc_test");
+    request->set_header("logid", logid.c_str());
 }
 
 static void http_test() {
     ChannelPtr channel = Channel::make_channel();
     ChannelOptions options;
-    options.protocol = "http";
+    options.protocol = "http_get";
     options.total_timeout_ms = 3000;
     options.connect_timeout_ms = 1000;
     options.backup_request_timeout_ms = 100;
@@ -66,7 +65,7 @@ static void http_test() {
 
     std::string logid = "f852bf7fa11544ce9fefa26eaf9ff093";
     //std::string address = "list://10.212.6.245:80";
-    std::string address = "http://xiaodu.baidu.com";
+    std::string address = "http://127.0.0.1:12345";
 
     int ret = channel->init(address, options);
     if (NET_SUCC != ret) {
@@ -95,7 +94,11 @@ static void http_test() {
 }
  
 int main(int argc, char** argv) {
+    // start mock server
+    MockServer http_server(12345, HTTP);
+    http_server.start();
     http_test();
+    http_server.shut_down();
     return 0;
 }
  

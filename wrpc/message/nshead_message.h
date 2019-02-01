@@ -9,6 +9,7 @@
 #ifndef WRPC_MESSAGE_NEHEAD_MESSAGE_H_
 #define WRPC_MESSAGE_NEHEAD_MESSAGE_H_
  
+#include <memory.h>
 #include <vector>
 
 #include "nshead.h"
@@ -19,8 +20,8 @@ namespace wrpc {
 
 class NsheadMessage : public IMessage {
 public:
-    NsheadMessage() {}
-    explicit NsheadMessage(size_t capacity) : _buffer(capacity) {}
+    NsheadMessage() { memset(&_header, 0, sizeof(nshead_t)); }
+    explicit NsheadMessage(size_t capacity) : _buffer(capacity) {  memset(&_header, 0, sizeof(nshead_t)); }
     ~NsheadMessage() {}
 
     nshead_t& header() { return _header; }

@@ -10,6 +10,7 @@
 
 #include "utils/common_define.h"
 #include "utils/timer.h"
+#include "utils/write_log.h"
  
 namespace wrpc {
 
@@ -32,6 +33,7 @@ int NsheadMessage::write_to(Writable* writable, int32_t timeout) {
     size_t body_len = _buffer.size();
     _header.body_len = body_len;
     _header.magic_num = NSHEAD_MAGICNUM;
+    DEBUG("nshead body len: %lu magic_num: %lx", _header.body_len, _header.magic_num);
 
     ssize_t ret = writable->write(
             reinterpret_cast<const char*>(&_header), sizeof(nshead_t), remain);
@@ -62,8 +64,10 @@ int NsheadMessage::read_from(Readable* readable, int32_t timeout) {
     if (ret != sizeof(nshead_t)) {
         return ret < 0 ? ret : NET_RECV_FAIL;
     }
+    DEBUG("nshead body len: %lu", _header.body_len);
 
     if (_header.magic_num != NSHEAD_MAGICNUM) {
+        WARNING("nshead magic_num not match: [%lx vs %lx]", _header.magic_num, NSHEAD_MAGICNUM);
         return NET_MESSAGE_NOT_MATCH;
     }
 
