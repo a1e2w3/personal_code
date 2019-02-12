@@ -31,16 +31,6 @@ std::string ipv4_to_string(const IPv4Address& ip) {
     return std::string(buffer);
 }
 
-IPv4Address string_to_ipv4(const std::string& ip_str) {
-    IPv4Address ip;
-    int ret = inet_pton(AF_INET, ip_str.c_str(), &ip);
-    if (ret != 1) {
-        WARNING("inet_pton [%s] fail with ret [%d]", ip_str.c_str(), ret);
-        return IPV4_NONE;
-    }
-    return ip;
-}
-
 IPv4Address hostname_to_ip(const std::string& hostname) {
     struct addrinfo hints;
     struct addrinfo *res = nullptr;

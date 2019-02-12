@@ -14,6 +14,7 @@
 #include <string>
 #include <sys/socket.h>
 
+#include "common/ip_address.h"
 #include "utils/common_define.h"
  
 namespace wrpc {
@@ -31,17 +32,6 @@ bool is_valid_port(IntType port) { return port > 0 && port < 65535; }
  *        "" if failed
  */
 std::string ipv4_to_string(const IPv4Address& ip);
-
-/**
- * @brief stringתipv4
- *
- * @param [in] ip : const std::string &
- *
- * @return IPv4Address
- *        ip address if success
- *        INADDR_NONE if failed
- */
-IPv4Address string_to_ipv4(const std::string& ip_str);
 
 /**
  * @brief hostnameתip

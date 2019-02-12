@@ -15,6 +15,7 @@
 #include <string>
 #include <unordered_set>
 
+#include "common/ip_address.h"
 #include "utils/common_define.h"
 #include "utils/net_utils.h"
 
@@ -26,12 +27,14 @@ typedef std::unordered_set<EndPoint> EndPointList;
 // cannot change once created
 class EndPoint {
 private:
-    IPv4Address _ip; // 网络字节序的ip
+    IPAddress _ip;   // 网络字节序的ip
     port_t _port;    // 主机字节序的port
 
 public:
-    EndPoint() : _ip(IPV4_ANY), _port(0){}
+    EndPoint() : _ip(), _port(0) {}
     EndPoint(const IPv4Address& ip, port_t port) : _ip(ip), _port(port) {}
+    EndPoint(const IPv6Address& ip, port_t port) : _ip(ip), _port(port) {}
+    EndPoint(const IPAddress& ip, port_t port) : _ip(ip), _port(port) {}
     ~EndPoint() {}
 
     // allow copy
@@ -44,17 +47,17 @@ public:
         return *this;
     }
 
-    int to_sock_addr(struct sockaddr_in* addr) const;
+    int to_sock_addr(SocketAddress* addr) const;
 
     bool is_port_valid() const { return is_valid_port(_port); }
-    bool is_ip_valid() const { return _ip.s_addr != INADDR_NONE; }
-    bool is_valid() const { return is_port_valid() && is_ip_valid(); }
+    bool is_valid() const { return is_port_valid(); }
 
-    const IPv4Address& ip() const { return _ip; }
+    const IPAddress& ip() const { return _ip; }
     port_t port() const { return _port; }
+    int domain() const { return _ip.domain; }
 
     std::string to_string() const;
-    std::string get_ip_string() const { return ipv4_to_string(_ip); }
+    std::string get_ip_string() const { return ip_to_string(_ip); }
 
     size_t hash_code() const;
 };
@@ -117,12 +120,10 @@ template<>
 struct hash<::wrpc::EndPoint> {
 public:
     size_t operator () (const ::wrpc::EndPoint& ep) const {
-        uint64_t value = static_cast<uint64_t>(ep.port());
-        value &= (static_cast<uint64_t>(ep.ip().s_addr) << 16);
-        return _hasher(value);
+        size_t hash = std::hash<::wrpc::IPAddress>()(ep.ip());
+        hash ^= (std::hash<::wrpc::port_t>()(ep.port()) << 1);
+        return hash;
     }
-private:
-    std::hash<uint64_t> _hasher;
 };
 } // end namespace std
  

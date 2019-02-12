@@ -31,14 +31,14 @@ int Connection::connect(int32_t timeout_ms) {
         return NET_SUCC;
     }
 
-    struct sockaddr_in addr;
+    SocketAddress addr;
     int ret = _end_point.to_sock_addr(&addr);
     if (ret != NET_SUCC) {
         WARNING("Connection: invalid end point[%s]", _end_point.to_string().c_str());
         return ret;
     }
     
-    int sock_fd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    int sock_fd = socket(_end_point.domain(), SOCK_STREAM, IPPROTO_TCP);
     if (sock_fd < 0) {
         WARNING("Connection: create socket failed: %d, errno: [%d:%s]", sock_fd, errno, strerror(errno));
         return NET_INTERNAL_ERROR;
