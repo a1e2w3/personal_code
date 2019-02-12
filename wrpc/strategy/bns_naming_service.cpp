@@ -8,6 +8,7 @@
  
 #include "strategy/bns_naming_service.h"
  
+#include <arpa/inet.h>
 #include <list>
 
 #include "webfoot_naming.h"
@@ -17,6 +18,11 @@
 #include "utils/write_log.h"
  
 namespace wrpc {
+
+static IPv4Address get_ipv4_addr(const webfoot::InstanceInfo& info) {
+    // 主机字节序转网络字节序
+    return IPv4Address{htonl(info.host_ip_uint())};
+}
  
 int BNSNamingService::refresh(const std::string& address) {
     std::list<webfoot::InstanceInfo> host_list;
@@ -48,7 +54,7 @@ int BNSNamingService::refresh(const std::string& address) {
 
         DEBUG("get instance[%s:%d] for bns[%s]",
                 info.host_ip_str().c_str(), info.port(), address.c_str());
-        ep_list.emplace(string_to_ipv4(info.host_ip_str()), info.port());
+        ep_list.emplace(get_ipv4_addr(info), info.port());
     }
 
     if (ep_list.empty()) {
