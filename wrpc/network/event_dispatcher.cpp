@@ -8,6 +8,7 @@
  
 #include "network/event_dispatcher.h"
 
+#include <assert.h>
 #include <functional>
 #include <mutex>
 #include <stdlib.h>
@@ -27,12 +28,12 @@ EventDispatcher::~EventDispatcher() {
 }
 
 int EventDispatcher::start() {
-	if (_dispatch_thread) {
-		WARNING("EventDispatcher is running already");
-		return -1;
-	}
+    if (_dispatch_thread) {
+        WARNING("EventDispatcher is running already");
+        return -1;
+    }
 
-	_epoll_fd = epoll_create(1024 * 1024);
+    _epoll_fd = epoll_create(1024 * 1024);
     if (_epoll_fd < 0) {
         FATAL("Fail to create epoll, ret: %d", _epoll_fd);
         return _epoll_fd;
@@ -71,7 +72,7 @@ void EventDispatcher::stop(bool wait) {
 }
 
 bool EventDispatcher::is_running() const {
-	return (_epoll_fd >= 0 && _dispatch_thread.get() != nullptr && !_stop.load());
+    return (_epoll_fd >= 0 && _dispatch_thread.get() != nullptr && !_stop.load());
 }
 
 void EventDispatcher::join() {
@@ -92,7 +93,9 @@ int EventDispatcher::add_listener(ControllerId cid, int fd) {
     }
     epoll_event evt;
     evt.events = EPOLLIN | EPOLLRDHUP | EPOLLET;
-    evt.data.u64 = buildListenerData(cid, fd);
+    ListenerData *data = (ListenerData *) (&evt.data.u64);
+    data->cid = cid;
+    data->fd = fd;
     DEBUG("event dispacher add controller:%lu, fd:%d", cid, fd);
     return epoll_ctl(_epoll_fd, EPOLL_CTL_ADD, fd, &evt);
 }
@@ -153,7 +156,7 @@ void EventDispatcher::thread_run_wrapper() {
         }
         for (int i = 0; i < n; ++i) {
             if (e[i].events & EXPECTED_EVENTS) {
-                notify(e[i].data.u64, e[i].events);
+                notify((const ListenerData *) (&e[i].data.u64), e[i].events);
                 DEBUG("notify epoll event: %d %d %lu", i, e[i].events, e[i].data.u64);
             }
         }
@@ -161,22 +164,21 @@ void EventDispatcher::thread_run_wrapper() {
     DEBUG("event dispacher stopped");
 }
 
-void EventDispatcher::notify(EventListenerData data, uint32_t epoll_events) {
-    ControllerId cid = getControllerIdFromListenerData(data);
-    int fd = getFdFromListenerData(data);
-    ControllerPtr controller = ControllerAddresser::address(cid).lock();
+void EventDispatcher::notify(const ListenerData *data, uint32_t epoll_events) {
+    assert(data != nullptr);
+    ControllerPtr controller = ControllerAddresser::address(data->cid).lock();
     if (!controller) {
-        WARNING("listener data %lu not found controller:%lu, ignore event", data, cid);
+        WARNING("listener data %lu not found controller:%lu, ignore event", data->u64, data->cid);
         return;
     }
 
     if (epoll_events & EPOLLIN) {
-        DEBUG("notify epoll in controller:%lu, fd:%d", cid, fd);
-	    controller->on_epoll_in(fd);
-	} else {
-        DEBUG("notify epoll error controller:%lu, fd:%d", cid, fd);
-	    controller->on_epoll_error(fd);
-	}
+        DEBUG("notify epoll in controller:%lu, fd:%d", data->cid, data->fd);
+        controller->on_epoll_in(data->fd);
+    } else {
+        DEBUG("notify epoll error controller:%lu, fd:%d", data->cid, data->fd);
+        controller->on_epoll_error(data->fd);
+    }
 }
 
 static EventDispatcher g_disps[WRPC_EVENT_DISPATCHER_NUMS];
@@ -197,13 +199,13 @@ static void stop_event_dispatchers() {
 
 static void init_event_dispatchers() {
     size_t num = WRPC_EVENT_DISPATCHER_NUMS;
-	for (size_t i = 0; i < num; ++i) {
-	    if (0 != g_disps[i].start()) {
-	        FATAL("Start event dispatcher %lu failed.", i);
-	        return;
-	    }
+    for (size_t i = 0; i < num; ++i) {
+        if (0 != g_disps[i].start()) {
+            FATAL("Start event dispatcher %lu failed.", i);
+            return;
+        }
     }
-	atexit(stop_event_dispatchers);
+    atexit(stop_event_dispatchers);
 }
 
 EventDispatcher& get_event_dispatcher(int fd) {

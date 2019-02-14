@@ -718,7 +718,7 @@ int detach_rpc(ControllerId id) {
     }
 }
 
-void cancel_rpc(ControllerId id, bool run_callback = true) {
+void cancel_rpc(ControllerId id, bool run_callback) {
     if (id != INVALID_CONTROLLER_ID) {
         ControllerPtr controller = ControllerAddresser::address(id).lock();
         if (controller) {

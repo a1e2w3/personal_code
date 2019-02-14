@@ -41,20 +41,17 @@ typedef uint16_t port_t;
 #define NET_DISCONNECTED -1001
 #define NET_SUCC 0
 
-typedef uint64_t ControllerId;
-typedef uint64_t EventListenerData;
+typedef uint32_t ControllerId;
 
-inline ControllerId getControllerIdFromListenerData(EventListenerData data) {
-    return (data & 0xFFFFFFFF00000000UL) >> 32;
-}
-
-inline int getFdFromListenerData(EventListenerData data) {
-    return static_cast<int>(data & 0x00000000FFFFFFFFUL);
-}
-
-inline EventListenerData buildListenerData(ControllerId cid, int fd) {
-    return ((cid << 32) | static_cast<EventListenerData>(fd));
-}
+union ListenerData {
+    // epoll_event结构存放的数据
+    uint64_t u64;
+    // 对data具体格式的解释
+    struct {
+        ControllerId cid;
+        int16_t fd;
+    };
+};
 
 inline bool need_retry(int error_code) {
     return error_code >= NET_NEED_RETRY_MIN && error_code <= NET_NEED_RETRY_MAX;

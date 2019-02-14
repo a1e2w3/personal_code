@@ -40,7 +40,7 @@ public:
 
 private:
     void thread_run_wrapper();
-    void notify(EventListenerData id, uint32_t epoll_events);
+    void notify(const ListenerData *data, uint32_t epoll_events);
     void release_fd();
 
 private:
