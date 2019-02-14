@@ -17,13 +17,14 @@
     + create_controller: 创建一个rpc控制器，用于发起一次rpc
 
 + Controller: 一次rpc过程的控制器，rpc完成后即可删除
-    + submit: 发起一次同步rpc请求，阻塞直到rpc结束
-    + submit_async: 发起一次异步rpc请求，请求在后台发送，函数立即返回
+    + submit: 发起一次rpc请求，阻塞直到rpc请求成功发出后返回
+    + submit_async: 异步发起一次rpc请求，请求在后台发送，函数立即返回
     + join: 同步等待一个rpc请求结束，阻塞直到rpc结束
     + detach: 让rpc自行在后台进行，应用程序可释放持有的ControllerPtr，而rpc不会被取消；没有detach的情况下，若持有的ControllerPtr都被释放且rpc还未结束，则rpc会自行取消
     + cancel: 取消正在进行中的rpc
     + status: rpc当前状态
     + get_request/get_response: 获取rpc请求/响应
+*注意submit和submit_async发起的都是异步rpc请求，都需要join实现同步等待；区别在于rpc请求发送的过程是否异步，submit等待请求发送完成，submit_async不等待在后台发送*
 ---
 重要的内部概念：
 + EventDispatcher: 基于epoll的事件分发器，每个分发器是一个独立线程，可以配置多个；只做事件监听和分发，没有阻塞操作，保证高并发
