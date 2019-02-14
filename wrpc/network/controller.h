@@ -201,6 +201,9 @@ public:
     bool is_failed() const { return _status == FAILED; }
     bool is_timeout() const { return _status == TIMEOUT; }
 
+    /// 获取ControllerId, 通过id同样可以对rpc实行join/detach/cancel
+    ControllerId id() const { return _id; }
+
 public:
     // options getter & setter
     void set_total_timeout(int32_t timeout_ms) {
@@ -323,6 +326,46 @@ private:
     // detach模式下, 引用自身, 防止Controller被析构
     ControllerPtr _self;
 };
+
+/**
+ * @brief 同步等待直到rpc完成, 超时或失败
+ *        对于已经提交的rpc, join返回时用户回调一定被执行完毕
+ *        若不是running状态, join立即返回
+ *
+ * @param [in] id : ControllerId
+ *        等待的rpc controller id
+ *
+ * @return int
+ *         NET_SUCC: rpc 正常结束
+ *         <0: rpc超时或失败, 错误码
+ */
+int join_rpc(ControllerId id);
+
+/**
+ * @brief 让rpc在后台自行运行完成, 运行结束后, 无论成功与否, 都会执行用户回调
+ *        detach成功后用户可释放持有的controller指针, 而rpc不会被取消
+ *        若不是running状态, detach立即返回
+ *
+ * @param [in] id : ControllerId
+ *        rpc controller id
+ *
+ * @return int
+ *         NET_SUCC: 成功
+ *         <0: 失败, 错误码
+ */
+int detach_rpc(ControllerId id);
+
+/**
+ * @brief 取消进行中的rpc, 若rpc不在进行中(未提交/完成/超时/失败), 则直接返回
+ *
+ * @param [in] id : ControllerId
+ *        rpc controller id
+ * @param [in] run_callback : bool
+ *        是否需要执行用户回调
+ *
+ * @return void
+ */
+void cancel_rpc(ControllerId id, bool run_callback = true);
 
 // Address controller by controller_id
 // singleton

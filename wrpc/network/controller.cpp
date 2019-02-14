@@ -693,6 +693,39 @@ void Controller::cancel_pending_bg_tasks() {
     _bg_tasks.clear();
     _pending_tasks.clear();
 }
+
+int join_rpc(ControllerId id) {
+    if (id == INVALID_CONTROLLER_ID) {
+        return NET_INVALID_ARGUMENT;
+    }
+    ControllerPtr controller = ControllerAddresser::address(id).lock();
+    if (controller) {
+        return controller->join();
+    } else {
+        return NET_INVALID_ARGUMENT;
+    }
+}
+
+int detach_rpc(ControllerId id) {
+    if (id == INVALID_CONTROLLER_ID) {
+        return NET_INVALID_ARGUMENT;
+    }
+    ControllerPtr controller = ControllerAddresser::address(id).lock();
+    if (controller) {
+        return controller->detach();
+    } else {
+        return NET_INVALID_ARGUMENT;
+    }
+}
+
+void cancel_rpc(ControllerId id, bool run_callback = true) {
+    if (id != INVALID_CONTROLLER_ID) {
+        ControllerPtr controller = ControllerAddresser::address(id).lock();
+        if (controller) {
+            return controller->cancel(run_callback);
+        }
+    }
+}
  
 ControllerAddresser::ControllerAddresser() : _cur_id(0) {}
  
@@ -710,7 +743,11 @@ ControllerId ControllerAddresser::regist_internal(ControllerWeakPtr instance) {
 
     std::lock_guard<std::mutex> lock(_mutex);
     ControllerId id = ++(_cur_id);
-    _id_2_instance_map[id] = instance;
+    if (id == INVALID_CONTROLLER_ID) {
+        // ·ÀÖ¹Òç³öºó¹é0
+        id = ++(_cur_id);
+    }
+    _id_2_instance_map[id] = std::move(instance);
     return id;
 }
 
