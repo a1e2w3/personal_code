@@ -24,6 +24,7 @@
     + cancel: 取消正在进行中的rpc
     + status: rpc当前状态
     + get_request/get_response: 获取rpc请求/响应
+
 *注意submit和submit_async发起的都是异步rpc请求，都需要join实现同步等待；区别在于rpc请求发送的过程是否异步，submit等待请求发送完成，submit_async不等待在后台发送*
 ---
 重要的内部概念：
