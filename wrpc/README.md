@@ -26,6 +26,7 @@
     + get_request/get_response: 获取rpc请求/响应
 
 *注意submit和submit_async发起的都是异步rpc请求，都需要join实现同步等待；区别在于rpc请求发送的过程是否异步，submit等待请求发送完成，submit_async不等待在后台发送*
+
 ---
 重要的内部概念：
 + EventDispatcher: 基于epoll的事件分发器，每个分发器是一个独立线程，可以配置多个；只做事件监听和分发，没有阻塞操作，保证高并发
