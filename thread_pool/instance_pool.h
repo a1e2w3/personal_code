@@ -30,6 +30,20 @@
 
 namespace common {
 
+// ±‡“Î∆⁄º∆À„lowest_bit
+template<int N>
+struct lowest_bit {
+    enum {
+       value = (N & 0x01 == 0x01 ? 0 : 1 + lowest_bit<(N >> 1)>::value),
+    };
+};
+template<>
+struct lowest_bit<0> {
+    enum {
+        value = 0,
+    };
+};
+
 inline uint8_t lowest_bit_8(uint8_t val) {
     uint8_t pos = 0;
     if ((val & 0x0f) == 0) {
@@ -146,6 +160,8 @@ private:
     // constants
     // capacity per slot which is number of bits of slot_type
     static const size_t SLOT_CAPACITY = sizeof(slot_type) << 3;
+    // bits count in index to indicate offset in slot
+    static const size_t SLOT_BITS = lowest_bit<SLOT_CAPACITY>::value;
     // max slot count which is max number of slot_index_type + 1
     static const size_t MAX_SLOT_COUNT = 0x01UL <<  (sizeof(slot_index_type) << 3);
     // max instance count
@@ -158,7 +174,8 @@ private:
     }
 
     static inline std::pair<slot_index_type, slot_index_type> slot_of(size_t index) {
-        return std::make_pair(index / SLOT_CAPACITY, index % SLOT_CAPACITY);
+        static const size_t SLOT_MASK = (0x01UL << SLOT_BITS) - 1;
+        return std::make_pair(index >> SLOT_BITS, index & SLOT_MASK);
     }
 
     static inline uint8_t lowest_bit_of(slot_type data) {
@@ -393,7 +410,7 @@ private:
             if (_slots[slot].compare_exchange_strong(slot_data, new_data)) {
                 // found available instance
                 --_availablity;
-                size_t index = index_in_slot + (slot * SLOT_CAPACITY);
+                size_t index = index_in_slot + (slot << SLOT_BITS);
 
                 PRINT_DEBUG("fetch instance at %ld in slot[%u-%u] %lx",
                         index, slot, index_in_slot, new_data);
