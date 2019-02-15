@@ -16,7 +16,7 @@ namespace wrpc {
  
 class INamingService : public EndPointUpdateObserverable {
 public:
-    INamingService(const std::string& protocol) : _protocol(protocol) {}
+    explicit INamingService(const std::string& protocol) : _protocol(protocol) {}
     virtual ~INamingService() {}
 
     virtual int refresh(const std::string& address) = 0;
