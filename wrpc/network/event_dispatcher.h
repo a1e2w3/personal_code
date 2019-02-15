@@ -18,13 +18,25 @@
  
 namespace wrpc {
 
+#pragma pack(1)
+union ListenerData {
+    // epoll_event结构存放的数据
+    uint64_t u64;
+    // 对data具体格式的解释
+    struct {
+        ControllerId cid;
+        int16_t fd;
+    };
+};
+#pragma pack()
+
 class EventDispatcher {
 public:
-	EventDispatcher();
+    EventDispatcher();
     ~EventDispatcher();
     // disallow copy
-	EventDispatcher(const EventDispatcher&) = delete;
-	EventDispatcher& operator = (const EventDispatcher&) = delete;
+    EventDispatcher(const EventDispatcher&) = delete;
+    EventDispatcher& operator = (const EventDispatcher&) = delete;
 
     int start();
 

@@ -16,6 +16,7 @@
 namespace wrpc {
 
 typedef uint16_t port_t;
+typedef uint32_t ControllerId;
  
 // network return codes
 
@@ -40,18 +41,6 @@ typedef uint16_t port_t;
 #define NET_INVALID_ARGUMENT -1002
 #define NET_DISCONNECTED -1001
 #define NET_SUCC 0
-
-typedef uint32_t ControllerId;
-
-union ListenerData {
-    // epoll_event结构存放的数据
-    uint64_t u64;
-    // 对data具体格式的解释
-    struct {
-        ControllerId cid;
-        int16_t fd;
-    };
-};
 
 inline bool need_retry(int error_code) {
     return error_code >= NET_NEED_RETRY_MIN && error_code <= NET_NEED_RETRY_MAX;
