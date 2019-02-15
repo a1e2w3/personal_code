@@ -15,7 +15,7 @@ namespace wrpc {
  
 class HttpNamingService : public INamingService {
 public:
-    HttpNamingService(const std::string& protocol) : INamingService(protocol) {}
+    explicit HttpNamingService(const std::string& protocol) : INamingService(protocol) {}
     virtual ~HttpNamingService() {}
 
     virtual int refresh(const std::string& address);

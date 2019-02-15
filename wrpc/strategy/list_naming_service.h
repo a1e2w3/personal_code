@@ -14,7 +14,7 @@ namespace wrpc {
  
 class ListNamingService : public INamingService {
 public:
-    ListNamingService(const std::string& protocol) : INamingService(protocol) {}
+    explicit ListNamingService(const std::string& protocol) : INamingService(protocol) {}
     virtual ~ListNamingService() {}
 
     virtual int refresh(const std::string& address);

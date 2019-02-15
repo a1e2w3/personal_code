@@ -15,7 +15,7 @@ namespace wrpc {
  
 class FileNamingService : public INamingService {
 public:
-    FileNamingService(const std::string& protocol) : INamingService(protocol) {}
+    explicit FileNamingService(const std::string& protocol) : INamingService(protocol) {}
     virtual ~FileNamingService() {}
 
     virtual int refresh(const std::string& address);

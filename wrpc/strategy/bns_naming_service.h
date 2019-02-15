@@ -15,7 +15,7 @@ namespace wrpc {
  
 class BNSNamingService : public INamingService {
 public:
-    BNSNamingService(const std::string& protocol) : INamingService(protocol) {}
+    explicit BNSNamingService(const std::string& protocol) : INamingService(protocol) {}
     virtual ~BNSNamingService() {}
 
     virtual int refresh(const std::string& address);
