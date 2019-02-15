@@ -19,8 +19,6 @@ namespace common {
  
 class FifoBlockQueue : public TaskQueue {
 public:
-    // capacity 需超过生产者和消费者数目的最大值
-    // 实际capacity会被强制设成2的整数幂, 输入不能超过2^31
     explicit FifoBlockQueue(uint32_t capacity);
     virtual ~FifoBlockQueue();
 
@@ -31,11 +29,11 @@ public:
     virtual bool cancel_task(TaskId task_id);
 
     virtual size_t queue_len() const {
-        return _queue_len.load();
+        return _queue.queue_len();
     }
 
     uint32_t capacity() const {
-        return _capacity;
+        return _queue.capacity();
     }
 
 private:
@@ -43,23 +41,8 @@ private:
     FifoBlockQueue(const FifoBlockQueue&) = delete;
     FifoBlockQueue& operator = (const FifoBlockQueue&) = delete;
 
-    TaskInfo wait_not_null_and_get(uint32_t index);
-    void wait_null_and_set(TaskInfo* task, uint32_t index);
-
-    // check interval if queue is full
-    static const unsigned long kSleepWaitUs = 50;
-    Microseconds _sleep_duration;
-
-    const uint32_t _capacity;
-    const uint32_t _index_mask;
-    std::atomic<TaskInfo*>* _queue;
-    std::atomic<uint32_t> _head;
-    std::atomic<uint32_t> _tail;
-    std::atomic<uint32_t> _queue_len;
-
-    // lock for waiting
-    std::mutex* _mutex_list;
-    std::condition_variable* _cond_list;
+    typedef AtomicArrayQueue<TaskInfo> Queue;
+    Queue _queue;
 
     // task info pool
     typedef InstancePool< TaskInfo, const TaskFunc&, const TaskAttr& > TaskInfoPool;

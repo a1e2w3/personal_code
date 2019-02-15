@@ -34,7 +34,7 @@ namespace common {
 template<int N>
 struct lowest_bit {
     enum {
-       value = (N & 0x01 == 0x01 ? 0 : 1 + lowest_bit<(N >> 1)>::value),
+       value = ((N & 0x01) == 0x01 ? 0 : 1 + lowest_bit<(N >> 1)>::value),
     };
 };
 template<>
