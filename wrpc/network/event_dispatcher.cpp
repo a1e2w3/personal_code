@@ -92,7 +92,7 @@ int EventDispatcher::add_listener(ControllerId cid, int fd) {
         return -1;
     }
     epoll_event evt;
-    evt.events = EPOLLIN | EPOLLRDHUP | EPOLLET;
+    evt.events = EPOLLIN | EPOLLRDHUP | EPOLLET | EPOLL_ONESHOT;
     ListenerData *data = (ListenerData *) (&evt.data.u64);
     data->cid = cid;
     data->fd = fd;
