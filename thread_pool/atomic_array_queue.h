@@ -147,12 +147,15 @@ private:
 
     pointer wait_not_null_and_get(uint32_t index) {
         uint32_t real_idx = index & _index_mask;
-        std::unique_lock<std::mutex> lock(_mutex_list[real_idx]);
         // exchange _queue[real_idx] value with NULL atomicly
         pointer p = _queue[real_idx].exchange(nullptr);
-        while (p == nullptr) {
-            _cond_list[real_idx].wait(lock);
+        if (p == nullptr) {
+            std::unique_lock<std::mutex> lock(_mutex_list[real_idx]);
             p = _queue[real_idx].exchange(nullptr);
+            while (p == nullptr) {
+                _cond_list[real_idx].wait(lock);
+                p = _queue[real_idx].exchange(nullptr);
+            }
         }
         --_queue_len;
         return p;
