@@ -56,11 +56,11 @@ public:
     }
 
     int init(void *params) {
-        return load_reource(params, false);
+        return load_resource(params, false);
     }
 
     int reload(void *params) {
-        return load_reource(params, true);
+        return load_resource(params, true);
     }
 
     int release_unused() {
@@ -92,7 +92,7 @@ public:
     }
 
 private:
-    int load_reource(void *params, bool is_reload) {
+    int load_resource(void *params, bool is_reload) {
         std::lock_guard<std::mutex> lock(_reload_mutex);
         auto cur_version = _version.load();
         int32_t index_to_load = (is_reload ? cur_version + 1 : cur_version) & 0x01;
