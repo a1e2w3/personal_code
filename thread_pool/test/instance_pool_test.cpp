@@ -2,7 +2,7 @@
  * @file instance_pool_test.cpp
  * @author wangcong(a1e2w3@126.com)
  * @date 2019-02-15 13:30:22
- * @brief ¶ÔÏó³Ø²âÊÔ³ÌÐò
+ * @brief instance poolæµ‹è¯•
  *
  **/
 
@@ -13,9 +13,9 @@
 #include <iostream>
 #include <mutex>
  
-#include "atomic_array_queue.h"
-#include "instance_pool.h"
-#include "timer.h"
+#include "thread_pool/atomic_array_queue.h"
+#include "thread_pool/instance_pool.h"
+#include "thread_pool/timer.h"
  
 using namespace common;
 

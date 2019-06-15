@@ -2,7 +2,7 @@
  * @file timer_task_queue.h
  * @author wangcong(a1e2w3@126.com)
  * @date 2017-08-30 14:15:09
- * @brief 定时任务队列
+ * @brief 瀹氭椂浠诲姟闃熷垪
  *  
  **/
  
@@ -13,9 +13,9 @@
 #include <queue>
 #include <unordered_map>
 
-#include "instance_pool.h"
-#include "task_queue.h"
-#include "timer.h"
+#include "thread_pool/instance_pool.h"
+#include "thread_pool/task_queue.h"
+#include "thread_pool/timer.h"
 
 namespace common {
 

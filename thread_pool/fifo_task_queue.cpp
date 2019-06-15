@@ -6,9 +6,9 @@
  *  
  **/
  
-#include "fifo_task_queue.h"
+#include "thread_pool/fifo_task_queue.h"
 
-#include "task_queue_factory.h"
+#include "thread_pool/task_queue_factory.h"
  
 namespace common {
  

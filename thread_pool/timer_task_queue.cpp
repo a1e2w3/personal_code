@@ -6,10 +6,10 @@
  *  
  **/
  
-#include "timer_task_queue.h"
+#include "thread_pool/timer_task_queue.h"
  
 #include <iostream>
-#include "task_queue_factory.h"
+#include "thread_pool/task_queue_factory.h"
  
 namespace common {
  

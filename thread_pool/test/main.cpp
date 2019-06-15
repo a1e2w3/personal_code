@@ -2,7 +2,7 @@
  * @file main.cpp
  * @author wangcong(a1e2w3@126.com)
  * @date 2017-08-25 13:44:16
- * @brief Ïß³Ì³Ø²âÊÔ³ÌÐò
+ * @brief thread poolæµ‹è¯•
  *  
  **/
 
@@ -16,9 +16,9 @@
 #include <thread>
 #include <vector> 
 
-#include "task_queue_factory.h"
-#include "thread_pool.h"
-#include "timer.h"
+#include "thread_pool/task_queue_factory.h"
+#include "thread_pool/thread_pool.h"
+#include "thread_pool/timer.h"
 
 using namespace common;
 

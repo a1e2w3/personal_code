@@ -6,7 +6,7 @@
  *  
  **/
  
-#include "thread_pool.h"
+#include "thread_pool/thread_pool.h"
 
 #include <algorithm>
 #include <assert.h>
@@ -15,7 +15,7 @@
 #include <functional>
 #include <iostream>
 
-#include "timer.h" 
+#include "thread_pool/timer.h"
 
 namespace common {
  

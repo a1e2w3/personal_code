@@ -2,7 +2,7 @@
  * @file timer.h
  * @author wangcong(a1e2w3@126.com)
  * @date 2017-08-25 17:27:55
- * @brief 计时工具类
+ * @brief 璁℃椂宸ュ叿
  *
  **/
 

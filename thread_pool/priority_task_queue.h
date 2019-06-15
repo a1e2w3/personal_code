@@ -13,9 +13,9 @@
 #include <queue>
 #include <unordered_map>
  
-#include "instance_pool.h"
-#include "task_queue.h"
-#include "timer.h"
+#include "thread_pool/instance_pool.h"
+#include "thread_pool/task_queue.h"
+#include "thread_pool/timer.h"
  
 namespace common {
 

@@ -2,7 +2,7 @@
  * @file fifo_task_queue.h
  * @author wangcong(a1e2w3@126.com)
  * @date 2017-08-29 10:26:32
- * @brief 非阻塞式fifo队列
+ * @brief deque瀹炵幇鐨刦ifo闃熷垪
  *  
  **/
  
@@ -14,8 +14,8 @@
 #include <mutex>
 #include <unordered_map>
 
-#include "task_queue.h"
-#include "instance_pool.h"
+#include "thread_pool/task_queue.h"
+#include "thread_pool/instance_pool.h"
  
 namespace common {
  

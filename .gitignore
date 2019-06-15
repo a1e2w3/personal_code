@@ -3,4 +3,4 @@
 *.a
 *.o
 output/
-tags
+bazel-*

@@ -2,7 +2,7 @@
  * @file fifo_block_queue.h
  * @author wangcong(a1e2w3@126.com)
  * @date 2017-08-25 13:44:16
- * @brief ×èÈûÊ½fifo¶ÓÁÐ
+ * @brief atomic arrayå®žçŽ°çš„fifo blockingé˜Ÿåˆ—
  *
  **/
 #pragma once
@@ -11,9 +11,10 @@
 #include <condition_variable>
 #include <mutex>
 
-#include "instance_pool.h"
-#include "task_queue.h"
-#include "timer.h"
+#include "thread_pool/atomic_array_queue.h"
+#include "thread_pool/instance_pool.h"
+#include "thread_pool/task_queue.h"
+#include "thread_pool/timer.h"
 
 namespace common {
  
