@@ -6,7 +6,7 @@ cc_library(
         "@comlog//:main",
         "//thread_pool:thread_pool"
     ],
-    copts = ["-g -O2 -std=c++11 -Iwrpc -Ithread_pool -Iexternal/comlog"],
+    copts = ["-g -O2 -std=c++11 -Iwrpc -Ithread_pool -Iexternal/comlog –Wno-unused-but-set-variable"],
     visibility = ["//visibility:public"],
     alwayslink = 1
 )
