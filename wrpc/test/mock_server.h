@@ -11,14 +11,13 @@
 #include <atomic>
 #include <thread>
 
-#include "utils/common_define.h"
+#include "wrpc/utils/common_define.h"
  
 namespace wrpc {
 
 enum Protocol {
     HTTP = 0,
-    NSHEAD = 1,
-    REDIS = 3,
+    REDIS = 1,
 };
  
 class MockServer {

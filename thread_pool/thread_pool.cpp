@@ -97,7 +97,7 @@ void print_sched_pretiles() {
     if (g_sched_delays.empty()) {
         return;
     }
-    double delay_sum = 0.0d;
+    double delay_sum = 0.0;
     for (int64_t delay : g_sched_delays) {
         delay_sum += delay;
     }

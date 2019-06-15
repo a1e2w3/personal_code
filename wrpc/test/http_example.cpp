@@ -6,11 +6,11 @@
  *  
  **/
  
-#include "network/channel.h"
-#include "network/controller.h"
-#include "message/http_message.h"
+#include "wrpc/network/channel.h"
+#include "wrpc/network/controller.h"
+#include "wrpc/message/http_message.h"
 
-#include "test/mock_server.h"
+#include "wrpc/test/mock_server.h"
 
 using namespace wrpc;
 

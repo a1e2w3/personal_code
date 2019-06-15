@@ -9,11 +9,10 @@
 #include <assert.h>
 #include <thread>
 
-#include "network/channel.h"
-#include "network/controller.h"
-#include "message/nshead_mcpack_message.h"
-#include "message/redis_message.h"
-#include "utils/timer.h"
+#include "wrpc/network/channel.h"
+#include "wrpc/network/controller.h"
+#include "wrpc/message/redis_message.h"
+#include "wrpc/utils/timer.h"
 
 #include "test/mock_server.h"
 

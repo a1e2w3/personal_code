@@ -5,7 +5,7 @@
 // 
 //
 
-#include "test/mock_server.h"
+#include "wrpc/test/mock_server.h"
 
 #include <errno.h>
 #include <functional>
@@ -14,10 +14,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#include "nshead.h"
-
-#include "utils/net_utils.h"
-#include "utils/write_log.h"
+#include "wrpc/utils/net_utils.h"
+#include "wrpc/utils/write_log.h"
  
 namespace wrpc {
 
@@ -101,16 +99,6 @@ static void do_response_http(int sock_fd) {
             "\r\n\r\n";
     response_data(sock_fd, response, strlen(response));
 }
-static void do_response_nshead(int sock_fd) {
-    nshead_t head;
-    memset(&head, 0, sizeof(nshead_t));
-    const char* body = "this is response body";
-    head.body_len = strlen(body);
-    head.magic_num = NSHEAD_MAGICNUM;
-    snprintf(head.provider, sizeof(head.provider), "mock server");
-    response_data(sock_fd, reinterpret_cast<const char*>(&head), sizeof(nshead_t));
-    response_data(sock_fd, body, head.body_len);
-}
 
 static void do_response_redis(int sock_fd) {
     const char* response = "$-1\r\n";
@@ -121,9 +109,6 @@ void MockServer::do_response(int sock_fd) {
     switch (_protocol) {
     case HTTP:
         do_response_http(sock_fd);
-        break;
-    case NSHEAD:
-        do_response_nshead(sock_fd);
         break;
     case REDIS:
         do_response_redis(sock_fd);

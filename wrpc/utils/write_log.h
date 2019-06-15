@@ -9,7 +9,7 @@
 #ifndef WRPC_UTILS_WRITE_LOG_H_
 #define WRPC_UTILS_WRITE_LOG_H_
  
-#include <com_log.h>
+#include "com_log.h"
  
 //#define __CLOSE_TRACE__
 //#define __CLOSE_DEBUG__
