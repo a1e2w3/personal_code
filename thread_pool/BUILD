@@ -21,5 +21,5 @@ cc_binary(
     deps = [],
     defines = ["PERF_TEST"],
     copts = ["-g -O2 -std=c++11"],
-    linkopts = []
+    linkopts = [-lpthread]
 )
