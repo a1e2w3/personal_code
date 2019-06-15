@@ -6,7 +6,7 @@ cc_library(
         "@comlog//:main",
         "//thread_pool:thread_pool"
     ],
-    copts = ["-g -O2 -std=c++11 -Iwrpc -Ithread_pool -Iexternal/comlog –Wno-unused-but-set-variable"],
+    copts = ["-g -O2 -std=c++11 -Iwrpc -Ithread_pool -Iexternal/comlog"],
     visibility = ["//visibility:public"],
     alwayslink = 1
 )
@@ -19,8 +19,7 @@ cc_binary(
         "@comlog//:main",
     ],
     defines = [],
-    copts = ["-g -O2 -std=c++11"],
-    includes = ["wrpc", "thread_pool"],
+    copts = ["-g -O2 -std=c++11 -Iwrpc -Ithread_pool -Iexternal/comlog"],
     linkopts = ["-lpthread"]
 )
 
@@ -32,6 +31,6 @@ cc_binary(
         "@comlog//:main",
     ],
     defines = [],
-    copts = ["-g -O2 -std=c++11 -Iwrpc -Ithread_pool"],
+    copts = ["-g -O2 -std=c++11 -Iwrpc -Ithread_pool -Iexternal/comlog"],
     linkopts = ["-lpthread"]
 )
