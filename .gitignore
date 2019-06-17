@@ -3,6 +3,7 @@
 *.a
 *.o
 output/
+thirdparty/*
 bazel-*
 blade-*
 build64_release/*
