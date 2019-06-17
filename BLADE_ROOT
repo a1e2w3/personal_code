@@ -1,0 +1,17 @@
+global_config(
+    native_builder = 'scons',  # 后端构建系统，目前支持scons和ninja
+    duplicated_source_action = 'error',  # 发现同一个源文件属于多个目标时的行为，默认为warning
+    test_timeout = 600  # 600s  # 测试超时，单位秒，超过超时值依然未结束，视为测试失败
+)
+
+cc_config(
+    extra_incs = [],  # 额外的 -I，比如 thirdparty
+    cppflags = [],   # C/C++公用编译选项
+    cflags = [],     # C专用编译选项
+    cxxflags = ['-std=c++11'],   # C++专用编译选项
+    linkflags = [],  # 库，可执行文件，测试公用的链接选项，比如库搜索路径等
+    warnings = ['-Wall', '-Wextra'], # C/C++公用警告
+    c_warnings = ['-Wall', '-Wextra'], # C专用警告
+    cxx_warnings = ['-Wall', '-Wextra'], # C++专用警告
+    optimize = '-O2', # 优化级别
+)
